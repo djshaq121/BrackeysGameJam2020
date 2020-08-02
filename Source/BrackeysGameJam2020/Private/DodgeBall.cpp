@@ -5,6 +5,7 @@
 #include "GameFramework/ProjectileMovementComponent.h"
 #include "Components/StaticMeshComponent.h"
 #include "Kismet/GameplayStatics.h"
+#include "PlayerBase.h"
 
 // Sets default values
 ADodgeBall::ADodgeBall()
@@ -23,6 +24,11 @@ void ADodgeBall::BeginPlay()
 {
 	Super::BeginPlay();
 	
+	PlayerRef = Cast<APlayerBase>(UGameplayStatics::GetPlayerPawn(GetWorld(), 0));
+	if (!PlayerRef)
+	{
+		UE_LOG(LogTemp, Error, TEXT("%s is unable to find player reference!"), *GetName())
+	}
 }
 
 // Called every frame
@@ -69,17 +75,17 @@ void ADodgeBall::ReturnDelay()
 
 void ADodgeBall::ReturnToPlayer()
 {
-	APawn* PlayerRef = UGameplayStatics::GetPlayerPawn(GetWorld(), 0);
 	if(!PlayerRef) {return;}
 
 	FVector Position = FMath::VInterpTo(GetActorLocation(), PlayerRef->GetActorLocation(), GetWorld()->GetDeltaSeconds(), ReturnSpeed);
 
 	SetActorLocation(Position);
 
-	//Destroy ball when in range of player
+	//Destroy ball when in range of player and allow the player to shoot the ball again
 	if (GetActorLocation().Equals(PlayerRef->GetActorLocation(), 100.f))
 	{
 		Destroy();
+		PlayerRef->bCanShoot = true;
 	}
 }
 

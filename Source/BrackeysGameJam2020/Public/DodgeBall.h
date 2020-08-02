@@ -8,6 +8,7 @@
 
 class UProjectileMovementComponent;
 class UStaticMeshComponent;
+class APlayerBase;
 
 //Enumerator for dodge ball state machine
 UENUM()
@@ -77,5 +78,8 @@ private:
 
 	//ReturnDelay timer delegate
 	FTimerDelegate BallDelayDelegate;
+
+	//Player reference
+	APlayerBase* PlayerRef;
 
 };
