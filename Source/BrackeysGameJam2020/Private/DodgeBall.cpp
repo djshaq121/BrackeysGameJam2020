@@ -5,6 +5,7 @@
 #include "GameFramework/ProjectileMovementComponent.h"
 #include "Components/StaticMeshComponent.h"
 #include "Kismet/GameplayStatics.h"
+#include "DrawDebugHelpers.h"
 #include "PlayerBase.h"
 
 // Sets default values
@@ -56,7 +57,10 @@ void ADodgeBall::SetBallState(TEnumAsByte<Projectile> ProjectileState)
 
 void ADodgeBall::Throw()
 {
+	FVector Direction = PlayerRef->GetControlRotation().Vector();
+	ProjectileMovement->AddForce(Direction * 4000.f);
 
+	DrawDebugPoint(GetWorld(), GetActorLocation(), 10.f, FColor::Red, false, 1.f);
 }
 
 void ADodgeBall::ReturnDelay()
