@@ -16,15 +16,14 @@ class BRACKEYSGAMEJAM2020_API APlayerBase : public ACharacter
 {
 	GENERATED_BODY()
 
-public:
-	// Sets default values for this character's properties
-	APlayerBase();
-
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
 public:	
+	// Sets default values for this character's properties
+	APlayerBase();
+
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
@@ -42,4 +41,37 @@ public:
 	//Ball spawn and idle position
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
 	USceneComponent* BallIdlePosition;
+
+	//Determine the max dash distance
+	UPROPERTY(EditDefaultsOnly, Category = "Movement")
+	float DashDistance = 500.f;
+
+	//Determine the dash interpolation speed
+	UPROPERTY(EditDefaultsOnly, Category = "Movement")
+	float DashSpeed = 10.f;
+
+	//Determine the cooldown of the dash
+	UPROPERTY(EditDefaultsOnly, Category = "Movement")
+	float DashCooldown = 5.f;
+
+private:
+	//Called to dash the player in a straight line
+	UFUNCTION()
+	void Dash();
+
+	//Whether the player is dashing
+	bool bIsDashing = false;
+
+	//Whether the player can dash
+	bool bCanDash = true;
+
+	//Location for the player to dash to
+	FVector DashLocation;
+
+	//Timer to handle dash cooldown
+	FTimerHandle DashTimer;
+
+	//Called to reenable dash mechanic
+	UFUNCTION()
+	void EnableDash();
 };
