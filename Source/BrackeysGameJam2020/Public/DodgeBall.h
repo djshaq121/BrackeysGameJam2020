@@ -43,7 +43,7 @@ public:
 	UPROPERTY(VisibleAnywhere, Category = "Components")
 	UStaticMeshComponent* StaticMesh;
 
-	//State of Dodge Ball
+	//Current state of Dodge Ball
 	UPROPERTY()
 	TEnumAsByte<Projectile> BallState = Thrown;
 
@@ -58,6 +58,10 @@ public:
 	//The return delay before the ball goes back to the player
 	UPROPERTY(EditDefaultsOnly, Category = "Dodgeball")
 	float BallReturnDelay = 2.f;
+
+	//Called when the projectile hits something
+	UFUNCTION()
+	void OnHitActor(AActor* SelfActor, AActor* OtherActor, FVector NormalImpulse, const FHitResult& Hit);
 
 private:
 	
@@ -81,5 +85,8 @@ private:
 
 	//Player reference
 	APlayerBase* PlayerRef;
+
+	//Determine whether the player can curve the ball
+	bool bCanCurve = true;
 
 };

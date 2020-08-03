@@ -16,7 +16,7 @@ ADodgeBall::ADodgeBall()
 
 	StaticMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Projectile Mesh"));
 	SetRootComponent(StaticMesh);
-
+	
 	ProjectileMovement = CreateDefaultSubobject<UProjectileMovementComponent>(TEXT("Projectile Movement"));
 }
 
@@ -25,11 +25,15 @@ void ADodgeBall::BeginPlay()
 {
 	Super::BeginPlay();
 	
+	//Get player reference
 	PlayerRef = Cast<APlayerBase>(UGameplayStatics::GetPlayerPawn(GetWorld(), 0));
 	if (!PlayerRef)
 	{
 		UE_LOG(LogTemp, Error, TEXT("%s is unable to find player reference!"), *GetName())
 	}
+
+	//Bind dynamic delegate to Actor Hit function
+	OnActorHit.AddDynamic(this, &ADodgeBall::OnHitActor);
 }
 
 // Called every frame
@@ -37,6 +41,7 @@ void ADodgeBall::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+	//Ball state machine
 	switch (BallState)
 	{
 		case Thrown: Throw(); break;
@@ -50,6 +55,7 @@ void ADodgeBall::SetBallState(TEnumAsByte<Projectile> ProjectileState)
 {
 	BallState = ProjectileState;
 
+	//Halt all projectile movement, store the position at where the projectile was stopped
 	BallPosition = GetActorLocation();
 	ProjectileMovement->StopMovementImmediately();
 	ProjectileMovement->ProjectileGravityScale = 0.f;
@@ -57,10 +63,13 @@ void ADodgeBall::SetBallState(TEnumAsByte<Projectile> ProjectileState)
 
 void ADodgeBall::Throw()
 {
-	FVector Direction = PlayerRef->GetControlRotation().Vector();
-	ProjectileMovement->AddForce(Direction * 4000.f);
+	if (bCanCurve)
+	{
+		FVector Direction = PlayerRef->GetControlRotation().Vector();
+		ProjectileMovement->AddForce(Direction * 4000.f);
 
-	DrawDebugPoint(GetWorld(), GetActorLocation(), 10.f, FColor::Red, false, 1.f);
+		DrawDebugPoint(GetWorld(), GetActorLocation(), 10.f, FColor::Red, false, 1.f);
+	}
 }
 
 void ADodgeBall::ReturnDelay()
@@ -91,5 +100,12 @@ void ADodgeBall::ReturnToPlayer()
 		Destroy();
 		PlayerRef->bCanShoot = true;
 	}
+}
+
+void ADodgeBall::OnHitActor(AActor* SelfActor, AActor* OtherActor, FVector NormalImpulse, const FHitResult& Hit)
+{
+
+	//Prevent ball from being influenced by the player
+	bCanCurve = false;
 }
 
