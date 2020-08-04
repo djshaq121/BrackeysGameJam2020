@@ -5,6 +5,7 @@
 #include "PlayerBase.h"
 #include "DrawDebugHelpers.h"
 #include "Components/CapsuleComponent.h"
+#include "DodgeBall.h"
 #include "GameFramework/CharacterMovementComponent.h"
 
 // Sets default values
@@ -54,6 +55,8 @@ void APlayerBase::SetupPlayerInputComponent(UInputComponent* PlayerInputComponen
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 
 	PlayerInputComponent->BindAction("Dash", IE_Pressed, this, &APlayerBase::Dash);
+	PlayerInputComponent->BindAction("Shoot", IE_Pressed, this, &APlayerBase::PressShoot);
+	PlayerInputComponent->BindAction("Shoot", IE_Released, this, &APlayerBase::ReleaseShoot);
 }
 
 void APlayerBase::Dash()
@@ -98,5 +101,26 @@ void APlayerBase::Dash()
 void APlayerBase::EnableDash()
 {
 	bCanDash = true;
+}
+
+void APlayerBase::PressShoot()
+{
+	if(!ProjectileClass) {return;}
+	if (bCanShoot)
+	{
+		FTransform ProjectileTransform = BallIdlePosition->GetComponentTransform();
+		ProjectileTransform.SetScale3D(FVector(0.1f));
+		ProjectileRef = GetWorld()->SpawnActor<ADodgeBall>(ProjectileClass, ProjectileTransform);
+		bCanShoot = false;
+	}
+	else
+	{
+		ProjectileRef->SetBallState(DelayReturn);
+	}
+}
+
+void APlayerBase::ReleaseShoot()
+{
+
 }
 

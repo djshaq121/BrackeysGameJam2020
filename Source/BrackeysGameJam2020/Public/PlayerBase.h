@@ -7,7 +7,7 @@
 #include "PlayerBase.generated.h"
 
 class UCameraComponent;
-
+class ADodgeBall;
 /**
  * The base class for the player
  */
@@ -54,6 +54,9 @@ public:
 	UPROPERTY(EditDefaultsOnly, Category = "Movement")
 	float DashCooldown = 5.f;
 
+	UPROPERTY(EditDefaultsOnly, Category = "Projectile")
+	TSubclassOf<ADodgeBall> ProjectileClass;
+
 private:
 	//Called to dash the player in a straight line
 	UFUNCTION()
@@ -74,4 +77,12 @@ private:
 	//Called to reenable dash mechanic
 	UFUNCTION()
 	void EnableDash();
+
+	UFUNCTION()
+	void PressShoot();
+
+	UFUNCTION()
+	void ReleaseShoot();
+
+	ADodgeBall* ProjectileRef;
 };
