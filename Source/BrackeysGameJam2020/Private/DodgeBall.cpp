@@ -15,9 +15,11 @@ ADodgeBall::ADodgeBall()
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
+	//Create dodgeball static mesh component and make it the root component
 	StaticMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Projectile Mesh"));
 	SetRootComponent(StaticMesh);
 	
+	//Create Projectile Movement Component which will handle the projectile movement (Speed, bouncing, etc)
 	ProjectileMovement = CreateDefaultSubobject<UProjectileMovementComponent>(TEXT("Projectile Movement"));
 }
 
@@ -28,12 +30,14 @@ void ADodgeBall::BeginPlay()
 	
 	//Get player reference
 	PlayerRef = Cast<APlayerBase>(UGameplayStatics::GetPlayerPawn(GetWorld(), 0));
+
+	//Display error if for some reason the player was unable to be found or the Cast failed
 	if (!PlayerRef)
 	{
-		UE_LOG(LogTemp, Error, TEXT("%s is unable to find player reference!"), *GetName())
+		UE_LOG(LogTemp, Error, TEXT("%s is unable to find PlayerBase reference!"), *GetName())
 	}
 
-	//Bind dynamic delegate to Actor Hit function
+	//Bind OnActorHit to my own OnHitActor() function so when OnActorHit is triggered, OnHitActor() is called
 	OnActorHit.AddDynamic(this, &ADodgeBall::OnHitActor);
 }
 
@@ -42,7 +46,7 @@ void ADodgeBall::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	//Ball state machine
+	//Ball state machine which will call different functions based on the value of BallState
 	switch (BallState)
 	{
 		case Thrown: Throw(); break;
@@ -54,8 +58,10 @@ void ADodgeBall::Tick(float DeltaTime)
 
 void ADodgeBall::SetBallState(TEnumAsByte<Projectile> ProjectileState)
 {
+	//If ProjectileMovementComponent does not exist for some reason, prevent nullptr crash by ending the function early
 	if(!ProjectileMovement) {return;}
 
+	//Set the state of the ball to the value given in the function
 	BallState = ProjectileState;
 
 	//Halt all projectile movement, store the position at where the projectile was stopped
@@ -68,21 +74,32 @@ void ADodgeBall::Throw()
 {
 	if (bCanCurve)
 	{
+		/**
+		 * Calculate how the ball will be influenced by getting the ControlRotation
+		 * Then, calculate the Rotation from the player to the Ball.
+		 * Find the difference of the two values (This will make the value 0 when the player is looking directly at the ball but allow the velocity to change otherwise)
+		 */
 		FVector Direction = PlayerRef->GetControlRotation().Vector();
 		Direction -= UKismetMathLibrary::FindLookAtRotation(PlayerRef->GetActorLocation(), GetActorLocation()).Vector();
+
+		//Multiply the direction of the force by a value to make the ball move
 		ProjectileMovement->AddForce(Direction * 3000.f);
 
+		//Debug points to show ball influence
 		DrawDebugPoint(GetWorld(), GetActorLocation(), 10.f, FColor::Red, false, 2.f);
 	}
 }
 
 void ADodgeBall::ReturnDelay()
 {
+	//Use the ball position when the player requested to return the ball and a value right above to simulate "hovering".
+	//Input these values into a Interp function which will smoothly interpret between the two values based on ReturnSpeed
 	FVector Position = FMath::VInterpTo(GetActorLocation(), BallPosition + FVector(0.f,0.f,100.f), GetWorld()->GetDeltaSeconds(), ReturnSpeed);
 
+	//Set the position of the Ball to the Smoothed location
 	SetActorLocation(Position);
 
-	//Change ball state to return after set time
+	//Change ball state to 'Return' after set time and clear the timer
 	if (!GetWorldTimerManager().IsTimerActive(BallDelayTimer))
 	{
 		BallDelayDelegate.BindUFunction(this, FName("SetBallState"), Return);
@@ -92,10 +109,13 @@ void ADodgeBall::ReturnDelay()
 
 void ADodgeBall::ReturnToPlayer()
 {
+	//If there is no player reference for some reason, stop the function early to prevent a nullptr
 	if(!PlayerRef) {return;}
 
+	//Smoothly interpolate the movement from current position to the players position to simulate returning to the player
 	FVector Position = FMath::VInterpTo(GetActorLocation(), PlayerRef->GetActorLocation(), GetWorld()->GetDeltaSeconds(), ReturnSpeed);
 
+	//Update the actors position to the smoothed position
 	SetActorLocation(Position);
 
 	//Destroy ball when in range of player and allow the player to shoot the ball again
