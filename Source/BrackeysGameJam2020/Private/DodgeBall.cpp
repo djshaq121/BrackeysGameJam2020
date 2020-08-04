@@ -6,6 +6,7 @@
 #include "Components/StaticMeshComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "DrawDebugHelpers.h"
+#include "Kismet/KismetMathLibrary.h"
 #include "PlayerBase.h"
 
 // Sets default values
@@ -53,6 +54,8 @@ void ADodgeBall::Tick(float DeltaTime)
 
 void ADodgeBall::SetBallState(TEnumAsByte<Projectile> ProjectileState)
 {
+	if(!ProjectileMovement) {return;}
+
 	BallState = ProjectileState;
 
 	//Halt all projectile movement, store the position at where the projectile was stopped
@@ -66,9 +69,10 @@ void ADodgeBall::Throw()
 	if (bCanCurve)
 	{
 		FVector Direction = PlayerRef->GetControlRotation().Vector();
-		ProjectileMovement->AddForce(Direction * 4000.f);
+		Direction -= UKismetMathLibrary::FindLookAtRotation(PlayerRef->GetActorLocation(), GetActorLocation()).Vector();
+		ProjectileMovement->AddForce(Direction * 3000.f);
 
-		DrawDebugPoint(GetWorld(), GetActorLocation(), 10.f, FColor::Red, false, 1.f);
+		DrawDebugPoint(GetWorld(), GetActorLocation(), 10.f, FColor::Red, false, 2.f);
 	}
 }
 
