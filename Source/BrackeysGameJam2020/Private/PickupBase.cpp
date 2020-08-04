@@ -1,8 +1,8 @@
 
 
+#include "PickupBase.h"
 #include "Components/StaticMeshComponent.h"
 #include "Components/SphereComponent.h"
-#include "PickupBase.h"
 #include "PlayerBase.h"
 
 // Sets default values
