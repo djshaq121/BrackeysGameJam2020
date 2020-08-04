@@ -63,6 +63,18 @@ public:
 	UFUNCTION()
 	void OnHitActor(AActor* SelfActor, AActor* OtherActor, FVector NormalImpulse, const FHitResult& Hit);
 
+	//Accessor to get bCanCurve
+	bool GetCanCurve() const { return bCanCurve; }
+
+	//Accessor to get bIsCurving
+	bool GetIsCurving() const { return bIsCurving; }
+
+	//Set value of bCanCurve
+	void SetCanCurve(const bool& CanCurve) { bCanCurve = CanCurve; }
+
+	//Set value of bIsCurving
+	void SetIsCurving(const bool& IsCurving) { bIsCurving = IsCurving; }
+
 private:
 	
 	//Called when ball is in Throw state
@@ -89,4 +101,6 @@ private:
 	//Determine whether the player can curve the ball
 	bool bCanCurve = true;
 
+	//Determine whether the ball is actually curving
+	bool bIsCurving = false;
 };

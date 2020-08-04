@@ -62,6 +62,8 @@ void APlayerBase::SetupPlayerInputComponent(UInputComponent* PlayerInputComponen
 	PlayerInputComponent->BindAction("Dash", IE_Pressed, this, &APlayerBase::Dash);
 	PlayerInputComponent->BindAction("Shoot", IE_Pressed, this, &APlayerBase::PressShoot);
 	PlayerInputComponent->BindAction("Shoot", IE_Released, this, &APlayerBase::ReleaseShoot);
+	PlayerInputComponent->BindAction("CurveBall", IE_Pressed, this, &APlayerBase::PressCurve);
+	PlayerInputComponent->BindAction("CurveBall", IE_Released, this, &APlayerBase::ReleaseCurve);
 }
 
 void APlayerBase::Dash()
@@ -138,6 +140,31 @@ void APlayerBase::ReleaseShoot()
 		UE_LOG(LogTemp, Log, TEXT("Charge: %d | Speed: %f"), ChargeAmount, ProjectileRef->ProjectileMovement->Velocity.Size());
 		GetWorldTimerManager().ClearTimer(ChargeTimerHandle);
 		ChargeAmount = 1;
+
+		if (bTryToCurve)
+		{
+			ProjectileRef->SetIsCurving(true);
+		}
+	}
+}
+
+void APlayerBase::PressCurve()
+{
+	bTryToCurve = true;
+
+	if (ProjectileRef && ProjectileRef->GetCanCurve())
+	{
+		ProjectileRef->SetIsCurving(true);
+	}
+}
+
+void APlayerBase::ReleaseCurve()
+{
+	bTryToCurve = false;
+	if (ProjectileRef)
+	{
+		ProjectileRef->SetCanCurve(false);
+		ProjectileRef->SetIsCurving(false);
 	}
 }
 

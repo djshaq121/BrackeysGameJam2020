@@ -95,6 +95,14 @@ private:
 	UFUNCTION()
 	void ReleaseShoot();
 
+	//Called when the player presses the shoot binding
+	UFUNCTION()
+	void PressCurve();
+
+	//Called when the player releases the shoot binding
+	UFUNCTION()
+	void ReleaseCurve();
+
 	//Dodgeball actor reference
 	ADodgeBall* ProjectileRef;
 
@@ -107,4 +115,7 @@ private:
 	//Called to increment the ball charge amount
 	UFUNCTION()
 	void IncrementBallCharge();
+
+	//Whether the player is trying to curve the ball
+	bool bTryToCurve;
 };

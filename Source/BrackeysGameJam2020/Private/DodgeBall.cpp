@@ -66,7 +66,7 @@ void ADodgeBall::SetBallState(TEnumAsByte<Projectile> ProjectileState)
 
 void ADodgeBall::Throw()
 {
-	if (bCanCurve)
+	if (bIsCurving)
 	{
 		FVector Direction = PlayerRef->GetControlRotation().Vector();
 		Direction -= UKismetMathLibrary::FindLookAtRotation(PlayerRef->GetActorLocation(), GetActorLocation()).Vector();
@@ -108,8 +108,8 @@ void ADodgeBall::ReturnToPlayer()
 
 void ADodgeBall::OnHitActor(AActor* SelfActor, AActor* OtherActor, FVector NormalImpulse, const FHitResult& Hit)
 {
-
 	//Prevent ball from being influenced by the player
 	bCanCurve = false;
+	bIsCurving = false;
 }
 
