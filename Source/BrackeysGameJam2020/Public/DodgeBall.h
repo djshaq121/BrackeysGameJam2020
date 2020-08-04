@@ -43,13 +43,13 @@ public:
 	UPROPERTY(VisibleAnywhere, Category = "Components")
 	UStaticMeshComponent* StaticMesh;
 
-	//Current state of Dodge Ball
-	UPROPERTY()
-	TEnumAsByte<Projectile> BallState = Thrown;
-
 	//Called to modify whether the ball is returning to the player
 	UFUNCTION(BlueprintCallable, Category = "Dodgeball")
 	void SetBallState(TEnumAsByte<Projectile> ProjectileState);
+
+	//Called to get current state of ball
+	UFUNCTION()
+	TEnumAsByte<Projectile> GetBallState() { return BallState; }
 
 	//The speed at which the ball returns to the player
 	UPROPERTY(EditDefaultsOnly, Category = "Dodgeball")
@@ -103,4 +103,8 @@ private:
 
 	//Determine whether the ball is actually curving
 	bool bIsCurving = false;
+
+	//Current state of Dodge Ball
+	UPROPERTY()
+	TEnumAsByte<Projectile> BallState = Thrown;
 };

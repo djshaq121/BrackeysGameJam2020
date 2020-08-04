@@ -119,7 +119,7 @@ void APlayerBase::PressShoot()
 			GetWorldTimerManager().SetTimer(ChargeTimerHandle, this, &APlayerBase::IncrementBallCharge, BallChargeInterval, true);
 		}
 	}
-	else if (ProjectileRef)
+	else if (ProjectileRef && ProjectileRef->GetBallState() == Thrown)
 	{
 		ProjectileRef->SetBallState(DelayReturn);
 	}
