@@ -6,7 +6,9 @@
 #include "DrawDebugHelpers.h"
 #include "Components/CapsuleComponent.h"
 #include "DodgeBall.h"
+#include "GameFramework/ProjectileMovementComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "Kismet/GameplayStatics.h"
 
 // Sets default values
 APlayerBase::APlayerBase()
@@ -26,6 +28,10 @@ void APlayerBase::BeginPlay()
 {
 	Super::BeginPlay();
 	
+	if (!ProjectileClass)
+	{
+		UE_LOG(LogTemp, Error, TEXT("%s is unable to find Projectile Class reference!"), *GetName())
+	}
 }
 
 // Called every frame
@@ -105,15 +111,14 @@ void APlayerBase::EnableDash()
 
 void APlayerBase::PressShoot()
 {
-	if(!ProjectileClass) {return;}
 	if (bCanShoot)
 	{
-		FTransform ProjectileTransform = BallIdlePosition->GetComponentTransform();
-		ProjectileTransform.SetScale3D(FVector(0.1f));
-		ProjectileRef = GetWorld()->SpawnActor<ADodgeBall>(ProjectileClass, ProjectileTransform);
-		bCanShoot = false;
+		if (!GetWorldTimerManager().IsTimerActive(ChargeTimerHandle))
+		{
+			GetWorldTimerManager().SetTimer(ChargeTimerHandle, this, &APlayerBase::IncrementBallCharge, BallChargeInterval, true);
+		}
 	}
-	else
+	else if (ProjectileRef)
 	{
 		ProjectileRef->SetBallState(DelayReturn);
 	}
@@ -121,6 +126,27 @@ void APlayerBase::PressShoot()
 
 void APlayerBase::ReleaseShoot()
 {
+	if (!ProjectileClass) { return; }
+	if (bCanShoot)
+	{
+		FTransform ProjectileTransform = BallIdlePosition->GetComponentTransform();
+		ProjectileTransform.SetScale3D(FVector(0.1f));
+		ProjectileRef = GetWorld()->SpawnActor<ADodgeBall>(ProjectileClass, ProjectileTransform);
+		bCanShoot = false;
 
+		const float& InitSpeed = ProjectileRef->ProjectileMovement->InitialSpeed;
+		ProjectileRef->ProjectileMovement->Velocity = GetControlRotation().Vector() * (InitSpeed * ChargeAmount);
+		UE_LOG(LogTemp, Log, TEXT("Charge: %d | Speed: %f"), ChargeAmount, ProjectileRef->ProjectileMovement->Velocity.Size());
+		GetWorldTimerManager().ClearTimer(ChargeTimerHandle);
+		ChargeAmount = 1;
+	}
+}
+
+void APlayerBase::IncrementBallCharge()
+{
+	if (ChargeAmount < MaxBallCharge)
+	{
+		ChargeAmount++;
+	}
 }
 

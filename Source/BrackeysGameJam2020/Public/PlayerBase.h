@@ -54,8 +54,17 @@ public:
 	UPROPERTY(EditDefaultsOnly, Category = "Movement")
 	float DashCooldown = 5.f;
 
+	//Dodgeball class
 	UPROPERTY(EditDefaultsOnly, Category = "Projectile")
 	TSubclassOf<ADodgeBall> ProjectileClass;
+	
+	//Determine the max ball charge that the player can have
+	UPROPERTY(EditDefaultsOnly, Category = "Projectile")
+	int32 MaxBallCharge = 5;
+
+	//Rate, in seconds, that the ball charge increases by 1
+	UPROPERTY(EditDefaultsOnly, Category = "Projectile")
+	float BallChargeInterval = 0.5f;
 
 private:
 	//Called to dash the player in a straight line
@@ -78,11 +87,24 @@ private:
 	UFUNCTION()
 	void EnableDash();
 
+	//Called when the player presses the shoot binding
 	UFUNCTION()
 	void PressShoot();
 
+	//Called when the player releases the shoot binding
 	UFUNCTION()
 	void ReleaseShoot();
 
+	//Dodgeball actor reference
 	ADodgeBall* ProjectileRef;
+
+	//Value that stores how charged the dodgeball is
+	int32 ChargeAmount = 1;
+
+	//Handle the interval between gaining charges
+	FTimerHandle ChargeTimerHandle;
+
+	//Called to increment the ball charge amount
+	UFUNCTION()
+	void IncrementBallCharge();
 };
