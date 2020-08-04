@@ -15,9 +15,11 @@ APlayerBase::APlayerBase()
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
+	//Create Camera component and attach it to the root component
 	Camera = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera"));
 	Camera->SetupAttachment(RootComponent);
 
+	//Create Scene component to store where the dodge ball spawns from the player. Attach it to the camera so the position/rotation is relative to the camera component
 	BallIdlePosition = CreateDefaultSubobject<USceneComponent>(TEXT("Ball Position"));
 	BallIdlePosition->SetupAttachment(Camera);
 }
@@ -27,6 +29,7 @@ void APlayerBase::BeginPlay()
 {
 	Super::BeginPlay();
 	
+	//Send an error if there is no ProjectileClass reference in the BP actor.
 	if (!ProjectileClass)
 	{
 		UE_LOG(LogTemp, Error, TEXT("%s is unable to find Projectile Class reference!"), *GetName())
@@ -38,6 +41,7 @@ void APlayerBase::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+	//Smoothly transition the player position from 'A' to 'B' while dashing
 	if (bIsDashing)
 	{
 		FVector SmoothDashLocation = FMath::VInterpTo(GetActorLocation(), DashLocation, DeltaTime, 10.f);
@@ -59,6 +63,7 @@ void APlayerBase::SetupPlayerInputComponent(UInputComponent* PlayerInputComponen
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 
+	//Bind selected actions (which can be found in the Input settings in UE4) to the specified functions
 	PlayerInputComponent->BindAction("Dash", IE_Pressed, this, &APlayerBase::Dash);
 	PlayerInputComponent->BindAction("Shoot", IE_Pressed, this, &APlayerBase::PressShoot);
 	PlayerInputComponent->BindAction("Shoot", IE_Released, this, &APlayerBase::ReleaseShoot);
@@ -70,6 +75,13 @@ void APlayerBase::Dash()
 {
 	if (bCanDash)
 	{
+		/**
+		 * Collect necessary variables 
+		 * - getting the end location based on PlayerController rotation and DashDistance
+		 * - ignoring 'self' actor in sweep trace
+		 * - getting player capsule size
+		 * to calculate the Sweep Trace
+		 */
 		FHitResult Hit;
 		FVector ControlDirection = GetControlRotation().Vector();
 		FVector EndLocation = GetActorLocation() + (ControlDirection * DashDistance);
@@ -88,18 +100,22 @@ void APlayerBase::Dash()
 		if (Hit.bBlockingHit)
 		{
 			DashLocation = Hit.Location + FVector(0.f, 0.f, Height / 1.5f);
-			//DrawDebugCapsule(GetWorld(), Hit.Location + FVector(0.f,0.f, Height/1.5f), Height / 4.f, Radius, FQuat(GetActorRotation()), FColor::Red, false, 20.f);
 		}
 		else
 		{
 			DashLocation = Hit.TraceEnd;
 		}
 
-		bIsDashing = true;
-		bCanDash = false;
+		//To allow for smoother dashes, disable gravity, stop movement, and set movement mode to flying
 		GetCharacterMovement()->GravityScale = 0.f;
 		GetCharacterMovement()->SetMovementMode(MOVE_Flying);
 		GetCharacterMovement()->StopMovementImmediately();
+
+		//Set appropriate variables to let the player/code know that they are dashing and that they cannot dash until cooldown is over
+		bIsDashing = true;
+		bCanDash = false;
+		
+		//Set dash timer to DashCooldown variable
 		GetWorldTimerManager().SetTimer(DashTimer, this, &APlayerBase::EnableDash, DashCooldown, false);
 	}
 	
@@ -114,6 +130,7 @@ void APlayerBase::PressShoot()
 {
 	if (bCanShoot)
 	{
+		//Setup timer to call IncrementBallCharge() function every BallChargeInterval seconds
 		if (!GetWorldTimerManager().IsTimerActive(ChargeTimerHandle))
 		{
 			GetWorldTimerManager().SetTimer(ChargeTimerHandle, this, &APlayerBase::IncrementBallCharge, BallChargeInterval, true);
@@ -121,23 +138,27 @@ void APlayerBase::PressShoot()
 	}
 	else if (ProjectileRef && ProjectileRef->GetBallState() == Thrown)
 	{
+		//If the projectile exists and the player cannot shoot (Meaning that they can only recall the ball), set the dodgeball to the DelayReturn state
 		ProjectileRef->SetBallState(DelayReturn);
 	}
 }
 
 void APlayerBase::ReleaseShoot()
 {
+	//Stop the function early if ProjectileClass is nullptr to prevent a crash
 	if (!ProjectileClass) { return; }
+
 	if (bCanShoot)
 	{
+		//Spawn the actor at the BallIdlePosition and set the Scale to 0.1 so the ball is not so large
 		FTransform ProjectileTransform = BallIdlePosition->GetComponentTransform();
 		ProjectileTransform.SetScale3D(FVector(0.1f));
 		ProjectileRef = GetWorld()->SpawnActor<ADodgeBall>(ProjectileClass, ProjectileTransform);
 		bCanShoot = false;
 
+		//Adjust the velocity of the ball based on the amount of charges the player held for. Reset the ChargeAmount and clear the ChargeTimerHandle (since it was set to loop) after calculating
 		const float& InitSpeed = ProjectileRef->ProjectileMovement->InitialSpeed;
 		ProjectileRef->ProjectileMovement->Velocity = GetControlRotation().Vector() * (InitSpeed * ChargeAmount);
-		UE_LOG(LogTemp, Log, TEXT("Charge: %d | Speed: %f"), ChargeAmount, ProjectileRef->ProjectileMovement->Velocity.Size());
 		GetWorldTimerManager().ClearTimer(ChargeTimerHandle);
 		ChargeAmount = 1;
 

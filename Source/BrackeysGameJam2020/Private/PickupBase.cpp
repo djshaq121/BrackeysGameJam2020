@@ -11,10 +11,12 @@ APickupBase::APickupBase()
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
+	//Create pickup static mesh component so there is a visual for the player.
 	PickupMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Pickup Mesh"));
 	PickupMesh->SetCollisionResponseToAllChannels(ECR_Overlap);
 	SetRootComponent(PickupMesh);
 
+	//Create invisible sphere collision component so the player can interact with the powerup from a further range.
 	SphereCollision = CreateDefaultSubobject<USphereComponent>(TEXT("Sphere Collision"));
 	SphereCollision->SetupAttachment(PickupMesh);
 	SphereCollision->SetSphereRadius(500.f);
@@ -24,6 +26,8 @@ APickupBase::APickupBase()
 void APickupBase::BeginPlay()
 {
 	Super::BeginPlay();
+
+	//Bind the OnActorBeginOverlap to my own OnPlayerOverlap() function so when one gets called, the other is called.
 	OnActorBeginOverlap.AddDynamic(this, &APickupBase::OnPlayerOverlap);
 }
 
@@ -35,9 +39,10 @@ void APickupBase::Tick(float DeltaTime)
 
 void APickupBase::OnPlayerOverlap(AActor* OverlappedActor, AActor* OtherActor)
 {
+	//Get player reference
 	APlayerBase* PlayerReference = Cast<APlayerBase>(OtherActor);
 
-	//Call blueprint function and destroy actor
+	//Call BP function PlayerInteract() and destroy the actor
 	if (PlayerReference)
 	{
 		PlayerInteract(PlayerReference);
