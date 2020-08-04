@@ -43,13 +43,13 @@ public:
 	UPROPERTY(VisibleAnywhere, Category = "Components")
 	UStaticMeshComponent* StaticMesh;
 
-	//Current state of Dodge Ball
-	UPROPERTY()
-	TEnumAsByte<Projectile> BallState = Thrown;
-
 	//Called to modify whether the ball is returning to the player
 	UFUNCTION(BlueprintCallable, Category = "Dodgeball")
 	void SetBallState(TEnumAsByte<Projectile> ProjectileState);
+
+	//Called to get current state of ball
+	UFUNCTION()
+	TEnumAsByte<Projectile> GetBallState() { return BallState; }
 
 	//The speed at which the ball returns to the player
 	UPROPERTY(EditDefaultsOnly, Category = "Dodgeball")
@@ -62,6 +62,18 @@ public:
 	//Called when the projectile hits something
 	UFUNCTION()
 	void OnHitActor(AActor* SelfActor, AActor* OtherActor, FVector NormalImpulse, const FHitResult& Hit);
+
+	//Accessor to get bCanCurve
+	bool GetCanCurve() const { return bCanCurve; }
+
+	//Accessor to get bIsCurving
+	bool GetIsCurving() const { return bIsCurving; }
+
+	//Set value of bCanCurve
+	void SetCanCurve(const bool& CanCurve) { bCanCurve = CanCurve; }
+
+	//Set value of bIsCurving
+	void SetIsCurving(const bool& IsCurving) { bIsCurving = IsCurving; }
 
 private:
 	
@@ -89,4 +101,10 @@ private:
 	//Determine whether the player can curve the ball
 	bool bCanCurve = true;
 
+	//Determine whether the ball is actually curving
+	bool bIsCurving = false;
+
+	//Current state of Dodge Ball
+	UPROPERTY()
+	TEnumAsByte<Projectile> BallState = Thrown;
 };
