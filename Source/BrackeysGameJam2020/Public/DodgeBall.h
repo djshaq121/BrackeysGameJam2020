@@ -59,6 +59,9 @@ public:
 	UPROPERTY(EditDefaultsOnly, Category = "Dodgeball")
 	float BallReturnDelay = 2.f;
 
+	UPROPERTY(EditDefaultsOnly, Category = "Dodgeball")
+	float DamageAmount = 10.f;
+
 	//Called when the projectile hits something
 	UFUNCTION()
 	void OnHitActor(AActor* SelfActor, AActor* OtherActor, FVector NormalImpulse, const FHitResult& Hit);

@@ -11,6 +11,7 @@ UHealthComponent::UHealthComponent()
 	PrimaryComponentTick.bCanEverTick = false;
 
 	MaxHealth = 100.0f;
+	TeamNumber = 255;
 }
 
 // Called when the game starts
@@ -21,14 +22,36 @@ void UHealthComponent::BeginPlay()
 	CurrentHealth = MaxHealth;
 }
 
-void UHealthComponent::DealDamage(AActor * DamagedActor, float Damage, AController * InstigatedBy, FVector HitLocation, AActor * DamageCauser)
+void UHealthComponent::DealDamage(AActor* DamagedActor, float Damage, AController * InstigatedBy, FVector HitLocation, AActor* DamageCauser)
 {
+	if (!InstigatedBy || !InstigatedBy->GetPawn() || !DamagedActor)
+		return;
+
+	if (IsFriendly(DamagedActor, InstigatedBy->GetPawn()))
+		return;
+
 	CurrentHealth = FMath::Clamp(CurrentHealth - Damage, 0.0f, MaxHealth);
 	if (CurrentHealth <= 0.f && !bIsDead)
 		bIsDead = true;
 
 	OnHealthChange.Broadcast(this, CurrentHealth, HitLocation, InstigatedBy, DamageCauser);
-		
+}
+
+bool UHealthComponent::IsFriendly(AActor* ActorA, AActor* ActorB)
+{
+	//If an actor doesnt have no component we dont wont to do no more damage
+	if (ActorA == nullptr || ActorB == nullptr)
+		return true;
+
+	auto* HealthCompA = Cast<UHealthComponent>(ActorA->GetComponentByClass(UHealthComponent::StaticClass()));
+	auto* HealthCompB = Cast<UHealthComponent>(ActorB->GetComponentByClass(UHealthComponent::StaticClass()));
 	
-	
+	if (HealthCompA == nullptr || HealthCompB == nullptr)
+		return true;
+
+	//UE_LOG(LogTemp, Warning, TEXT("A: %d B: %d"), HealthCompA->TeamNumber, HealthCompB->TeamNumber)
+	if (HealthCompA->TeamNumber == HealthCompB->TeamNumber)
+		return true;
+	UE_LOG(LogTemp, Warning, TEXT("Not Same Team"))
+	return false;
 }

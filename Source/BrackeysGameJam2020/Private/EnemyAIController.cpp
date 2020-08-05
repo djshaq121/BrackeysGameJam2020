@@ -33,6 +33,14 @@ void AEnemyAIController::OnPossess(APawn* PossessPawn)
 	}
 }
 
+void AEnemyAIController::OnUnPossess()
+{
+	if (!BlackboardComp || !BehaviorComp) return;
+		BehaviorComp->StopTree();
+
+	Super::OnUnPossess();
+}
+
 void AEnemyAIController::SetTarget(AActor* Target)
 {
 	BlackboardComp->SetValueAsObject(TargetKeyName, Target);
