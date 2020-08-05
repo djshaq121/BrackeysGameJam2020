@@ -39,7 +39,7 @@ void ADodgeBall::BeginPlay()
 	}
 
 	//Bind OnActorHit to my own OnHitActor() function so when OnActorHit is triggered, OnHitActor() is called
-	OnActorHit.AddDynamic(this, &ADodgeBall::OnHitActor);
+	StaticMesh->OnComponentBeginOverlap.AddDynamic(this, &ADodgeBall::OnOverlapComponent);
 }
 
 // Called every frame
@@ -117,7 +117,10 @@ void ADodgeBall::ReturnToPlayer()
 	FVector Position = FMath::VInterpTo(GetActorLocation(), PlayerRef->GetActorLocation(), GetWorld()->GetDeltaSeconds(), ReturnSpeed);
 
 	//Update the actors position to the smoothed position
-	SetActorLocation(Position);
+	SetActorLocation(Position, true);
+
+	//Update collision profile
+	StaticMesh->SetCollisionProfileName("OverlapAll");
 
 	//Destroy ball when in range of player and allow the player to shoot the ball again
 	if (GetActorLocation().Equals(PlayerRef->GetActorLocation(), 100.f))
@@ -127,7 +130,7 @@ void ADodgeBall::ReturnToPlayer()
 	}
 }
 
-void ADodgeBall::OnHitActor(AActor* SelfActor, AActor* OtherActor, FVector NormalImpulse, const FHitResult& Hit)
+void ADodgeBall::OnOverlapComponent(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
 	//Prevent ball from being influenced by the player
 	bCanCurve = false;
@@ -140,6 +143,6 @@ void ADodgeBall::OnHitActor(AActor* SelfActor, AActor* OtherActor, FVector Norma
 	if (!HealthComp)
 		return;
 
-	HealthComp->DealDamage(OtherActor, DamageAmount, GetOwner()->GetInstigatorController(), Hit.ImpactPoint, this);
+	HealthComp->DealDamage(OtherActor, DamageAmount, GetOwner()->GetInstigatorController(), SweepResult.ImpactPoint, this);
 }
 
