@@ -1,7 +1,6 @@
 
-
-#include "Components/SkeletalMeshComponent.h"
 #include "RagdollComponent.h"
+#include "Components/SkeletalMeshComponent.h"
 
 // Sets default values for this component's properties
 URagdollComponent::URagdollComponent()
