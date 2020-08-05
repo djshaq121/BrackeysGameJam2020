@@ -154,6 +154,7 @@ void APlayerBase::ReleaseShoot()
 		FTransform ProjectileTransform = BallIdlePosition->GetComponentTransform();
 		ProjectileTransform.SetScale3D(FVector(0.1f));
 		ProjectileRef = GetWorld()->SpawnActor<ADodgeBall>(ProjectileClass, ProjectileTransform);
+		ProjectileRef->SetOwner(this);
 		bCanShoot = false;
 
 		//Adjust the velocity of the ball based on the amount of charges the player held for. Reset the ChargeAmount and clear the ChargeTimerHandle (since it was set to loop) after calculating

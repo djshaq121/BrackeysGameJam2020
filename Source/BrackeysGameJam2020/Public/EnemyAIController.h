@@ -27,6 +27,8 @@ public:
 
 	virtual void OnPossess(APawn* PossessPawn) override;
 
+	virtual void OnUnPossess() override;
+
 	void SetTarget(AActor* Target);
 
 public:

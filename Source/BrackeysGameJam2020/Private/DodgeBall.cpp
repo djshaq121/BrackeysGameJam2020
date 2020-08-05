@@ -7,6 +7,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "DrawDebugHelpers.h"
 #include "Kismet/KismetMathLibrary.h"
+#include "HealthComponent.h"
 #include "PlayerBase.h"
 
 // Sets default values
@@ -131,5 +132,14 @@ void ADodgeBall::OnHitActor(AActor* SelfActor, AActor* OtherActor, FVector Norma
 	//Prevent ball from being influenced by the player
 	bCanCurve = false;
 	bIsCurving = false;
+
+	if (!OtherActor)
+		return;
+
+	auto HealthComp = Cast<UHealthComponent>(OtherActor->GetComponentByClass(UHealthComponent::StaticClass()));
+	if (!HealthComp)
+		return;
+
+	HealthComp->DealDamage(OtherActor, DamageAmount, GetOwner()->GetInstigatorController(), Hit.ImpactPoint, this);
 }
 

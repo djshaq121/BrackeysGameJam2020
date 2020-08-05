@@ -8,6 +8,7 @@
 
 class UHealthComponent;
 class UBehaviorTree;
+class AEnemyAIController;
 
 UCLASS()
 class BRACKEYSGAMEJAM2020_API AEnemyBase : public ACharacter
@@ -36,4 +37,10 @@ public:
 
 	UPROPERTY(EditAnywhere, Category = "AI")
 	UBehaviorTree* BehaviorTree;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta = (ClampMin = 0), Category = "HealthComponent")
+	float LifeSpan = 2.f;
+
+private:
+	AEnemyAIController* AIController;
 };

@@ -29,6 +29,12 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Health Component")
 	bool GetIsDead() const { return bIsDead; }
 
+	UFUNCTION(BlueprintCallable, Category = "Health Component")
+	void DealDamage(AActor * DamagedActor, float Damage, AController * InstigatedBy, FVector HitLocation, AActor * DamageCauser);
+
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "HealthComponent")
+	static bool IsFriendly(AActor* ActorA, AActor* ActorB);
+
 protected:
 
 	float CurrentHealth;
@@ -41,7 +47,7 @@ public:
 
 	UPROPERTY(BlueprintAssignable, Category = "Event")
 	FOnHealthChangeSignature OnHealthChange;
-	
-	UFUNCTION(BlueprintCallable, Category = "Health Component")
-	void DealDamage(AActor * DamagedActor, float Damage, AController * InstigatedBy, FVector HitLocation, AActor * DamageCauser);
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "HealthComponent")
+	uint8 TeamNumber;
 };

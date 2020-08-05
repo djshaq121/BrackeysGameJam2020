@@ -30,7 +30,7 @@ void AEnemyBase::BeginPlay()
 	if (Player == nullptr)
 		return;
 
-	auto AIController = Cast<AEnemyAIController>(GetController());
+	AIController = Cast<AEnemyAIController>(GetController());
 	if (AIController)
 		AIController->SetTarget(Player);
 	
@@ -38,5 +38,18 @@ void AEnemyBase::BeginPlay()
 
 void AEnemyBase::OnHealthChanged(UHealthComponent * OwningHealthComp, float Health,  FVector HitDirection,  AController * InstigatedBy, AActor * DamageCauser)
 {
+	if (OwningHealthComp->GetIsDead())
+	{
+		if (AIController)
+		{
+			//Stop Behavior tree
+			AIController->OnUnPossess();
+		}
+		
+		//Destroy Actor 
+		SetLifeSpan(LifeSpan);
+	}
+		
+	
 }
 
