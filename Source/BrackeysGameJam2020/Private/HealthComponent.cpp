@@ -24,12 +24,6 @@ void UHealthComponent::BeginPlay()
 
 void UHealthComponent::DealDamage(AActor* DamagedActor, float Damage, AController * InstigatedBy, FVector HitLocation, AActor* DamageCauser)
 {
-	if (!InstigatedBy || !InstigatedBy->GetPawn() || !DamagedActor)
-		return;
-
-	if (IsFriendly(DamagedActor, InstigatedBy->GetPawn()))
-		return;
-
 	CurrentHealth = FMath::Clamp(CurrentHealth - Damage, 0.0f, MaxHealth);
 	if (CurrentHealth <= 0.f && !bIsDead)
 		bIsDead = true;
