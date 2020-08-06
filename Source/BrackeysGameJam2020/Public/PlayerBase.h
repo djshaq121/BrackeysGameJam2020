@@ -9,6 +9,8 @@
 class UCameraComponent;
 class ADodgeBall;
 class UBoxComponent;
+class UHealthComponent;
+class UCameraShake;
 
 /**
  * The base class for the player
@@ -78,6 +80,15 @@ public:
 	//Rate, in seconds, that the ball charge increases by 1
 	UPROPERTY(EditDefaultsOnly, Category = "Projectile")
 	float BallChargeInterval = 0.5f;
+
+	UPROPERTY(EditAnywhere, Category = "Camera")
+	TSubclassOf<UCameraShake> DamageCamShake;
+
+protected:
+	UHealthComponent* HealthComp;
+
+	UFUNCTION()
+	void OnHealthChanged(UHealthComponent* OwningHealthComp, float Health, FVector HitDirection, class AController* InstigatedBy, AActor* DamageCauser);
 
 private:
 	//Called to dash the player in a straight line
