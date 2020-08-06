@@ -268,4 +268,10 @@ void APlayerBase::OnHealthChanged(UHealthComponent * OwningHealthComp, float Hea
 			PlayerController->PlayerCameraManager->PlayCameraShake(DamageCamShake);
 		
 	}
+
+	if(OwningHealthComp->GetIsDead())
+	{
+		if (SoundDeath)
+			UGameplayStatics::PlaySoundAtLocation(GetWorld(), SoundDeath, GetActorLocation());
+	}
 }

@@ -113,6 +113,10 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Sound")
 	USoundBase* SoundLand;
 
+	//Player landing sound
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Sound")
+	USoundBase* SoundDeath;
+
 	UPROPERTY(EditDefaultsOnly, Category = "Movement")
 	float FootstepInterval = 0.5f;
 
