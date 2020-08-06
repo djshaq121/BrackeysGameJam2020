@@ -119,11 +119,17 @@ void ADodgeBall::ReturnToPlayer()
 	{
 		Destroy();
 		PlayerRef->bCanShoot = true;
+
+		//Play hit sound
+		if (SoundHit)
+			UGameplayStatics::PlaySoundAtLocation(GetWorld(), SoundHit, GetActorLocation());
 	}
 }
 
 void ADodgeBall::OverlapComponent(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
+	Super::OverlapComponent(OverlappedComponent, OtherActor, OtherComp, OtherBodyIndex, bFromSweep, SweepResult);
+
 	//Prevent ball from being influenced by the player
 	bCanCurve = false;
 	bIsCurving = false;

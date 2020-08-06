@@ -11,6 +11,7 @@ class ADodgeBall;
 class UBoxComponent;
 class UHealthComponent;
 class UCameraShake;
+class USoundBase;
 
 /**
  * The base class for the player
@@ -84,6 +85,39 @@ public:
 	UPROPERTY(EditAnywhere, Category = "Camera")
 	TSubclassOf<UCameraShake> DamageCamShake;
 
+	//Sound when throwing the ball
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Sound")
+	USoundBase* SoundThrow;
+
+	//Sound when dashing
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Sound")
+	USoundBase* SoundDash;
+
+	//Sound when returning to the player
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Sound")
+	USoundBase* SoundReturn;
+
+	//Sound when charging the dodgeball
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Sound")
+	USoundBase* SoundCharge;
+
+	//Footstep sound
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Sound")
+	USoundBase* SoundFootstep;
+
+	//Jump sound
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Sound")
+	USoundBase* SoundJump;
+
+	//Player landing sound
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Sound")
+	USoundBase* SoundLand;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Movement")
+	float FootstepInterval = 0.5f;
+
+	void Landed(const FHitResult& Hit) override;
+
 protected:
 	UHealthComponent* HealthComp;
 
@@ -140,4 +174,10 @@ private:
 
 	//Whether the player is trying to curve the ball
 	bool bTryToCurve;
+
+	//Handle footstep timer handle sounds
+	FTimerHandle FootstepTimerHandle;
+
+	void Footstep();
+
 };

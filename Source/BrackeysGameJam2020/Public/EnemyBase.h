@@ -41,6 +41,9 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta = (ClampMin = 0), Category = "HealthComponent")
 	float LifeSpan = 2.f;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Sound")
+	USoundBase* SoundDeath;
+
 private:
 	AEnemyAIController* AIController;
 };

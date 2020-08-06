@@ -52,6 +52,10 @@ void AEnemyBase::OnHealthChanged(UHealthComponent * OwningHealthComp, float Heal
 
 		//Destroy Actor 
 		SetLifeSpan(LifeSpan);
+		
+		//Play death sound
+		if (SoundDeath)
+			UGameplayStatics::PlaySoundAtLocation(GetWorld(), SoundDeath, GetActorLocation());
 	}
 		
 	
