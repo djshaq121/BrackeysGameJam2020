@@ -140,6 +140,6 @@ void ADodgeBall::OverlapComponent(UPrimitiveComponent* OverlappedComponent, AAct
 	AController* InstigatorController = ActorOwner->GetInstigatorController<AController>();
 
 	//Deal damage to who we overlapped with
-	HealthComp->DealDamage(OtherActor, DamageAmount, InstigatorController, SweepResult.ImpactPoint, this);
+	HealthComp->DealDamage(OtherActor, DamageAmount, InstigatorController, SweepResult.ImpactPoint, this, KnockbackForce);
 }
 
