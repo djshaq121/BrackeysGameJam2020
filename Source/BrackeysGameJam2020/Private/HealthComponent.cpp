@@ -46,6 +46,7 @@ bool UHealthComponent::IsFriendly(AActor* ActorA, AActor* ActorB)
 	//UE_LOG(LogTemp, Warning, TEXT("A: %d B: %d"), HealthCompA->TeamNumber, HealthCompB->TeamNumber)
 	if (HealthCompA->TeamNumber == HealthCompB->TeamNumber)
 		return true;
-	UE_LOG(LogTemp, Warning, TEXT("Not Same Team"))
+	
+	//UE_LOG(LogTemp, Warning, TEXT("Not Same Team"))
 	return false;
 }
