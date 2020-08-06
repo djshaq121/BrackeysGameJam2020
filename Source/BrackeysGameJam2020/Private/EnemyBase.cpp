@@ -6,6 +6,7 @@
 #include "BehaviorTree/BehaviorTree.h"
 #include "EnemyAIController.h"
 #include "Kismet/GameplayStatics.h"
+#include "Components/CapsuleComponent.h"
 #include "GameFramework/Character.h"
 
 // Sets default values
@@ -46,6 +47,9 @@ void AEnemyBase::OnHealthChanged(UHealthComponent * OwningHealthComp, float Heal
 			AIController->OnUnPossess();
 		}
 		
+		//Remove collision
+		GetCapsuleComponent()->SetCollisionResponseToAllChannels(ECR_Ignore);
+
 		//Destroy Actor 
 		SetLifeSpan(LifeSpan);
 	}
