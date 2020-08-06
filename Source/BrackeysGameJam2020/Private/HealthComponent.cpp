@@ -2,6 +2,7 @@
 
 
 #include "HealthComponent.h"
+#include "KnockbackComponent.h"
 
 // Sets default values for this component's properties
 UHealthComponent::UHealthComponent()
@@ -20,13 +21,20 @@ void UHealthComponent::BeginPlay()
 	Super::BeginPlay();
 
 	CurrentHealth = MaxHealth;
+
+	 OwnerKnockbackComp = GetOwner()->FindComponentByClass<UKnockbackComponent>();
 }
 
-void UHealthComponent::DealDamage(AActor* DamagedActor, float Damage, AController * InstigatedBy, FVector HitLocation, AActor* DamageCauser)
+void UHealthComponent::DealDamage(AActor* DamagedActor, float Damage, AController * InstigatedBy, FVector HitLocation, AActor* DamageCauser, float KnockbackForce)
 {
 	CurrentHealth = FMath::Clamp(CurrentHealth - Damage, 0.0f, MaxHealth);
 	if (CurrentHealth <= 0.f && !bIsDead)
 		bIsDead = true;
+
+	if (OwnerKnockbackComp)
+	{
+		OwnerKnockbackComp->Knockback(KnockbackForce, HitLocation, DamageCauser);
+	}
 
 	OnHealthChange.Broadcast(this, CurrentHealth, HitLocation, InstigatedBy, DamageCauser);
 }

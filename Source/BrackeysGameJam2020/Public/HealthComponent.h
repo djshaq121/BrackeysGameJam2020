@@ -8,6 +8,7 @@
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_FiveParams(FOnHealthChangeSignature, UHealthComponent*, HealthComp, float, Health, FVector, HitDirection, class AController*, InstigatedBy, AActor*, DamageCauser);
 
+class UKnockbackComponent;
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class BRACKEYSGAMEJAM2020_API UHealthComponent : public UActorComponent
@@ -30,7 +31,7 @@ public:
 	bool GetIsDead() const { return bIsDead; }
 
 	UFUNCTION(BlueprintCallable, Category = "Health Component")
-	void DealDamage(AActor * DamagedActor, float Damage, AController * InstigatedBy, FVector HitLocation, AActor * DamageCauser);
+	void DealDamage(AActor * DamagedActor, float Damage, AController * InstigatedBy, FVector HitLocation, AActor * DamageCauser, float KnockbackForce = 1.0f);
 
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "HealthComponent")
 	static bool IsFriendly(AActor* ActorA, AActor* ActorB);
@@ -41,6 +42,8 @@ protected:
 
 	bool bIsDead = false;
 
+	UKnockbackComponent* OwnerKnockbackComp;
+
 public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta = (ClampMin = 0), Category = "HealthComponent")
 	float MaxHealth;
@@ -50,4 +53,8 @@ public:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "HealthComponent")
 	uint8 TeamNumber;
+
+private:
+
+	
 };
