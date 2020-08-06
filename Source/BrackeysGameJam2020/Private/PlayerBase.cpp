@@ -39,6 +39,8 @@ void APlayerBase::BeginPlay()
 	{
 		UE_LOG(LogTemp, Error, TEXT("%s is unable to find Projectile Class reference!"), *GetName())
 	}
+
+	DashCurrentCooldown = DashCooldown;
 }
 
 // Called every frame
@@ -59,6 +61,11 @@ void APlayerBase::Tick(float DeltaTime)
 			GetCharacterMovement()->SetDefaultMovementMode();
 			GetCharacterMovement()->GravityScale = 1.f;
 		}
+	}
+
+	if (DashCurrentCooldown < DashCooldown)
+	{
+		DashCurrentCooldown += DeltaTime;
 	}
 
 }
@@ -119,7 +126,9 @@ void APlayerBase::Dash()
 		//Set appropriate variables to let the player/code know that they are dashing and that they cannot dash until cooldown is over
 		bIsDashing = true;
 		bCanDash = false;
+
 		
+		DashCurrentCooldown = 0;
 		//Set dash timer to DashCooldown variable
 		GetWorldTimerManager().SetTimer(DashTimer, this, &APlayerBase::EnableDash, DashCooldown, false);
 	}
@@ -198,8 +207,6 @@ void APlayerBase::ReleaseCurve()
 void APlayerBase::IncrementBallCharge()
 {
 	if (ChargeAmount < MaxBallCharge)
-	{
 		ChargeAmount++;
-	}
 }
 
