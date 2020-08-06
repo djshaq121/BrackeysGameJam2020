@@ -56,16 +56,24 @@ public:
 	float DashSpeed = 10.f;
 
 	//Determine the cooldown of the dash
-	UPROPERTY(EditDefaultsOnly, Category = "Movement")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement")
 	float DashCooldown = 5.f;
+
+	//Used in BP to visualize the cooldown of the dash
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement")
+	float DashCurrentCooldown = 0.f;
 
 	//Dodgeball class
 	UPROPERTY(EditDefaultsOnly, Category = "Projectile")
 	TSubclassOf<ADodgeBall> ProjectileClass;
 	
 	//Determine the max ball charge that the player can have
-	UPROPERTY(EditDefaultsOnly, Category = "Projectile")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Projectile")
 	int32 MaxBallCharge = 5;
+
+	//Value that stores how charged the dodgeball is
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Projectile")
+	int32 ChargeAmount = 1;
 
 	//Rate, in seconds, that the ball charge increases by 1
 	UPROPERTY(EditDefaultsOnly, Category = "Projectile")
@@ -111,8 +119,6 @@ private:
 	//Dodgeball actor reference
 	ADodgeBall* ProjectileRef;
 
-	//Value that stores how charged the dodgeball is
-	int32 ChargeAmount = 1;
 
 	//Handle the interval between gaining charges
 	FTimerHandle ChargeTimerHandle;
