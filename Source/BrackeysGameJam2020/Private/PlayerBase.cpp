@@ -8,6 +8,8 @@
 #include "GameFramework/ProjectileMovementComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Components/BoxComponent.h"
+#include "HealthComponent.h"
+#include "Camera/CameraShake.h"
 #include "Kismet/GameplayStatics.h"
 
 // Sets default values
@@ -41,7 +43,13 @@ void APlayerBase::BeginPlay()
 	}
 
 	DashCurrentCooldown = DashCooldown;
+
+	HealthComp = FindComponentByClass<UHealthComponent>();
+	if (HealthComp)
+		HealthComp->OnHealthChange.AddDynamic(this, &APlayerBase::OnHealthChanged);
+
 }
+
 
 // Called every frame
 void APlayerBase::Tick(float DeltaTime)
@@ -210,3 +218,15 @@ void APlayerBase::IncrementBallCharge()
 		ChargeAmount++;
 }
 
+void APlayerBase::OnHealthChanged(UHealthComponent * OwningHealthComp, float Health, FVector HitDirection, AController * InstigatedBy, AActor * DamageCauser)
+{
+	if (OwningHealthComp && !OwningHealthComp->GetIsDead() && DamageCamShake)
+	{
+		auto PlayerController = Cast<APlayerController>(GetController());
+		if (PlayerController)
+		{
+			UE_LOG(LogTemp, Error, TEXT("Player controller found"), *GetName())
+			PlayerController->PlayerCameraManager->PlayCameraShake(DamageCamShake);
+		}
+	}
+}
