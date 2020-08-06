@@ -9,6 +9,7 @@
 class UProjectileMovementComponent;
 class UStaticMeshComponent;
 class APlayerBase;
+class USphereComponent;
 
 //Enumerator for dodge ball state machine
 UENUM()
@@ -42,6 +43,10 @@ public:
 	//Projectile Mesh Component
 	UPROPERTY(VisibleAnywhere, Category = "Components")
 	UStaticMeshComponent* StaticMesh;
+
+	//Projectile Mesh Component
+	UPROPERTY(VisibleAnywhere, Category = "Components")
+	USphereComponent* SphereCollision;
 
 	//Called to modify whether the ball is returning to the player
 	UFUNCTION(BlueprintCallable, Category = "Dodgeball")
