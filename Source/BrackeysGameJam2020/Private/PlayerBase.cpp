@@ -224,9 +224,7 @@ void APlayerBase::OnHealthChanged(UHealthComponent * OwningHealthComp, float Hea
 	{
 		auto PlayerController = Cast<APlayerController>(GetController());
 		if (PlayerController)
-		{
-			UE_LOG(LogTemp, Error, TEXT("Player controller found"), *GetName())
 			PlayerController->PlayerCameraManager->PlayCameraShake(DamageCamShake);
-		}
+		
 	}
 }
