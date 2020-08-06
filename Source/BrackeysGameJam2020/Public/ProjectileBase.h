@@ -39,8 +39,11 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
 	USphereComponent* SphereCollision;
 
-	UPROPERTY(EditDefaultsOnly, Category = "Dodgeball")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Projectile")
 	float DamageAmount = 10.f;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Projectile")
+	float KnockbackForce = 20.f;
 
 	//Called when the projectile hits something, can be implemented in BP
 	UFUNCTION(BlueprintNativeEvent)
