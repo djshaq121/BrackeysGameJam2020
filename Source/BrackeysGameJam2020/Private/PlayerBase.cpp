@@ -7,6 +7,7 @@
 #include "DodgeBall.h"
 #include "GameFramework/ProjectileMovementComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "Components/BoxComponent.h"
 #include "Kismet/GameplayStatics.h"
 
 // Sets default values
@@ -22,6 +23,10 @@ APlayerBase::APlayerBase()
 	//Create Scene component to store where the dodge ball spawns from the player. Attach it to the camera so the position/rotation is relative to the camera component
 	BallIdlePosition = CreateDefaultSubobject<USceneComponent>(TEXT("Ball Position"));
 	BallIdlePosition->SetupAttachment(Camera);
+
+	//Create box component so there is an area where the player can deflect the attacks.
+	DeflectBox = CreateDefaultSubobject<UBoxComponent>(TEXT("Deflect Box"));
+	DeflectBox->SetupAttachment(Camera);
 }
 
 // Called when the game starts or when spawned

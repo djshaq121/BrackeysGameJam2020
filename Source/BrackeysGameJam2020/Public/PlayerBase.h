@@ -8,6 +8,8 @@
 
 class UCameraComponent;
 class ADodgeBall;
+class UBoxComponent;
+
 /**
  * The base class for the player
  */
@@ -29,6 +31,9 @@ public:
 
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
+	UBoxComponent* DeflectBox;
 
 	//Determine whether the player can throw their dodgeball
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Dodgeball")
