@@ -8,6 +8,8 @@
 #include "DrawDebugHelpers.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "HealthComponent.h"
+#include "Components/SphereComponent.h"
+#include "HealthComponent.h"
 #include "PlayerBase.h"
 
 // Sets default values
@@ -19,6 +21,11 @@ ADodgeBall::ADodgeBall()
 	//Create dodgeball static mesh component and make it the root component
 	StaticMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Projectile Mesh"));
 	SetRootComponent(StaticMesh);
+
+	//Create sphere collision and attach to StaticMesh. Used for tracking overlapping actors
+	SphereCollision = CreateDefaultSubobject<USphereComponent>(TEXT("Collision Sphere"));
+	SphereCollision->SetupAttachment(StaticMesh);
+	SphereCollision->SetSphereRadius(200.f);
 	
 	//Create Projectile Movement Component which will handle the projectile movement (Speed, bouncing, etc)
 	ProjectileMovement = CreateDefaultSubobject<UProjectileMovementComponent>(TEXT("Projectile Movement"));
@@ -39,7 +46,7 @@ void ADodgeBall::BeginPlay()
 	}
 
 	//Bind OnActorHit to my own OnHitActor() function so when OnActorHit is triggered, OnHitActor() is called
-	StaticMesh->OnComponentBeginOverlap.AddDynamic(this, &ADodgeBall::OnOverlapComponent);
+	SphereCollision->OnComponentBeginOverlap.AddDynamic(this, &ADodgeBall::OnOverlapComponent);
 }
 
 // Called every frame
@@ -136,13 +143,18 @@ void ADodgeBall::OnOverlapComponent(UPrimitiveComponent* OverlappedComponent, AA
 	bCanCurve = false;
 	bIsCurving = false;
 
-	if (!OtherActor)
-		return;
+	//Make sure GetOwner() is valid and we arent colliding with the actor that spawned us
+	AActor* ActorOwner = GetOwner();
+	if(!ActorOwner || OtherActor == ActorOwner) { return; }
 
-	auto HealthComp = Cast<UHealthComponent>(OtherActor->GetComponentByClass(UHealthComponent::StaticClass()));
-	if (!HealthComp)
-		return;
+	//Get health component and make sure it is valid
+	UHealthComponent* HealthComp = OtherActor->FindComponentByClass<UHealthComponent>();
+	if (!HealthComp) { return; }
 
-	HealthComp->DealDamage(OtherActor, DamageAmount, GetOwner()->GetInstigatorController(), SweepResult.ImpactPoint, this);
+	//Get the controller of the actor that spawned us
+	AController* InstigatorController = ActorOwner->GetInstigatorController<AController>();
+
+	//Deal damage to who we overlapped with
+	HealthComp->DealDamage(OtherActor, DamageAmount, InstigatorController, SweepResult.ImpactPoint, this);
 }
 
