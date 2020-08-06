@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#include "ProjectileBase.h"
 #include "DodgeBall.generated.h"
 
 class UProjectileMovementComponent;
@@ -21,7 +22,7 @@ enum Projectile
 };
 
 UCLASS()
-class BRACKEYSGAMEJAM2020_API ADodgeBall : public AActor
+class BRACKEYSGAMEJAM2020_API ADodgeBall : public AProjectileBase
 {
 	GENERATED_BODY()
 	
@@ -35,18 +36,6 @@ public:
 
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
-
-	//Projectile Movement Component
-	UPROPERTY(VisibleAnywhere, Category = "Components")
-	UProjectileMovementComponent* ProjectileMovement;
-
-	//Projectile Mesh Component
-	UPROPERTY(VisibleAnywhere, Category = "Components")
-	UStaticMeshComponent* StaticMesh;
-
-	//Projectile Mesh Component
-	UPROPERTY(VisibleAnywhere, Category = "Components")
-	USphereComponent* SphereCollision;
 
 	//Called to modify whether the ball is returning to the player
 	UFUNCTION(BlueprintCallable, Category = "Dodgeball")
@@ -64,12 +53,8 @@ public:
 	UPROPERTY(EditDefaultsOnly, Category = "Dodgeball")
 	float BallReturnDelay = 2.f;
 
-	UPROPERTY(EditDefaultsOnly, Category = "Dodgeball")
-	float DamageAmount = 10.f;
-
 	//Called when the projectile hits something
-	UFUNCTION()
-	void OnOverlapComponent(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+	void OverlapComponent(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult) override;
 
 	//Accessor to get bCanCurve
 	bool GetCanCurve() const { return bCanCurve; }

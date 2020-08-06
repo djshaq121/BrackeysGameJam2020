@@ -8,6 +8,7 @@
 
 class UProjectileMovementComponent;
 class UStaticMeshComponent;
+class USphereComponent;
 
 UCLASS()
 class BRACKEYSGAMEJAM2020_API AProjectileBase : public AActor
@@ -27,18 +28,25 @@ public:
 	virtual void Tick(float DeltaTime) override;
 
 	//Projectile Movement Component
-	UPROPERTY(VisibleAnywhere, Category = "Components")
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
 	UProjectileMovementComponent* ProjectileMovement;
 
 	//Projectile Mesh Component
-	UPROPERTY(VisibleAnywhere, Category = "Components")
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
 	UStaticMeshComponent* StaticMesh;
+
+	//Projectile Mesh Component
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
+	USphereComponent* SphereCollision;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Dodgeball")
 	float DamageAmount = 10.f;
 
-	//Called when the projectile hits something
-	UFUNCTION()
-	virtual void OnOverlapComponent(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+	//Called when the projectile hits something, can be implemented in BP
+	UFUNCTION(BlueprintNativeEvent)
+	void OnOverlapComponent(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+
+	//C++ function that is called when the projectile hits something
+	virtual void OverlapComponent(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 
 };

@@ -17,18 +17,6 @@ ADodgeBall::ADodgeBall()
 {
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
-
-	//Create dodgeball static mesh component and make it the root component
-	StaticMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Projectile Mesh"));
-	SetRootComponent(StaticMesh);
-
-	//Create sphere collision and attach to StaticMesh. Used for tracking overlapping actors
-	SphereCollision = CreateDefaultSubobject<USphereComponent>(TEXT("Collision Sphere"));
-	SphereCollision->SetupAttachment(StaticMesh);
-	SphereCollision->SetSphereRadius(200.f);
-	
-	//Create Projectile Movement Component which will handle the projectile movement (Speed, bouncing, etc)
-	ProjectileMovement = CreateDefaultSubobject<UProjectileMovementComponent>(TEXT("Projectile Movement"));
 }
 
 // Called when the game starts or when spawned
@@ -44,9 +32,6 @@ void ADodgeBall::BeginPlay()
 	{
 		UE_LOG(LogTemp, Error, TEXT("%s is unable to find PlayerBase reference!"), *GetName())
 	}
-
-	//Bind OnActorHit to my own OnHitActor() function so when OnActorHit is triggered, OnHitActor() is called
-	SphereCollision->OnComponentBeginOverlap.AddDynamic(this, &ADodgeBall::OnOverlapComponent);
 }
 
 // Called every frame
@@ -137,7 +122,7 @@ void ADodgeBall::ReturnToPlayer()
 	}
 }
 
-void ADodgeBall::OnOverlapComponent(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+void ADodgeBall::OverlapComponent(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
 	//Prevent ball from being influenced by the player
 	bCanCurve = false;
