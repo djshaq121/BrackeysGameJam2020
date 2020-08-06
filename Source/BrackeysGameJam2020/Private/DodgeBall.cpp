@@ -15,13 +15,6 @@ ADodgeBall::ADodgeBall()
 {
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
-
-	//Create dodgeball static mesh component and make it the root component
-	StaticMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Projectile Mesh"));
-	SetRootComponent(StaticMesh);
-	
-	//Create Projectile Movement Component which will handle the projectile movement (Speed, bouncing, etc)
-	ProjectileMovement = CreateDefaultSubobject<UProjectileMovementComponent>(TEXT("Projectile Movement"));
 }
 
 // Called when the game starts or when spawned
@@ -37,9 +30,6 @@ void ADodgeBall::BeginPlay()
 	{
 		UE_LOG(LogTemp, Error, TEXT("%s is unable to find PlayerBase reference!"), *GetName())
 	}
-
-	//Bind OnActorHit to my own OnHitActor() function so when OnActorHit is triggered, OnHitActor() is called
-	StaticMesh->OnComponentBeginOverlap.AddDynamic(this, &ADodgeBall::OnOverlapComponent);
 }
 
 // Called every frame
