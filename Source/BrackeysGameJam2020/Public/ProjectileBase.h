@@ -23,6 +23,10 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
+protected:
+	UPROPERTY(BlueprintReadWrite, Category = "Projectile")
+	TArray<AActor*> ActorsHit;
+
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
@@ -59,5 +63,6 @@ public:
 	//Hit sound when hitting an actor
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Sound")
 	USoundBase* SoundActorHit;
+
 
 };

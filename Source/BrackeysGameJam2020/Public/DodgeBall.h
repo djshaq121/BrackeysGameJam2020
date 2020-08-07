@@ -16,6 +16,7 @@ class USphereComponent;
 UENUM()
 enum Projectile
 {
+	Idle,
 	Thrown,
 	DelayReturn,
 	Return
@@ -33,6 +34,11 @@ protected:
 public:	
 	// Sets default values for this actor's properties
 	ADodgeBall();
+
+	void LaunchProjectile(FVector Direction, int ChargeAmount);
+
+	void ReturnProjectile();
+
 
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
@@ -56,6 +62,10 @@ public:
 	//Called when the projectile hits something
 	void OverlapComponent(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult) override;
 
+	UFUNCTION()
+	void OnCompHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
+
+
 	//Accessor to get bCanCurve
 	bool GetCanCurve() const { return bCanCurve; }
 
@@ -75,6 +85,10 @@ private:
 
 	//Called when ball is in ReturnDelay state
 	void ReturnDelay();
+
+	void BeginReturningProjectile();
+
+	void StoreBallPosiitonAndStopMovement();
 
 	//Called when ball is in Return state
 	void ReturnToPlayer();
@@ -99,5 +113,5 @@ private:
 
 	//Current state of Dodge Ball
 	UPROPERTY()
-	TEnumAsByte<Projectile> BallState = Thrown;
+	TEnumAsByte<Projectile> BallState = Idle;
 };

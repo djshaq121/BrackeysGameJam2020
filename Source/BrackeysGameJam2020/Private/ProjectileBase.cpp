@@ -17,7 +17,7 @@ AProjectileBase::AProjectileBase()
 	SphereCollision = CreateDefaultSubobject<USphereComponent>(TEXT("Collision Sphere"));
 	SetRootComponent(SphereCollision);
 	SphereCollision->SetSphereRadius(200.f);
-
+	
 	//Create dodgeball static mesh component
 	StaticMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Projectile Mesh"));
 	StaticMesh->SetupAttachment(RootComponent);
@@ -50,7 +50,8 @@ void AProjectileBase::OnOverlapComponent_Implementation(UPrimitiveComponent* Ove
 
 void AProjectileBase::OverlapComponent(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	if(!IsValid(GetOwner()) || OtherActor == GetOwner()) {return;}
+	if(!IsValid(GetOwner()) || OtherActor == GetOwner() || OtherActor==this)
+		return;
 
 	if (Cast<APawn>(OtherActor))
 	{
