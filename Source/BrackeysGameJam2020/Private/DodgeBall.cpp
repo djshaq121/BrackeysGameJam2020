@@ -99,7 +99,7 @@ void ADodgeBall::Throw()
 		ProjectileMovement->AddForce(Direction * 3000.f);
 
 		//Debug points to show ball influence
-		DrawDebugPoint(GetWorld(), GetActorLocation(), 10.f, FColor::Red, false, 2.f);
+		//DrawDebugPoint(GetWorld(), GetActorLocation(), 10.f, FColor::Red, false, 2.f);
 	}
 }
 
@@ -198,7 +198,7 @@ void ADodgeBall::OverlapComponent(UPrimitiveComponent* OverlappedComponent, AAct
 
 	//Make sure GetOwner() is valid and we arent colliding with the actor that spawned us
 	AActor* ActorOwner = GetOwner();
-	if(!ActorOwner || OtherActor == ActorOwner) { return; }
+	if(!ActorOwner || !OtherActor  || OtherActor == ActorOwner  ) { return; }
 
 	//Get health component and make sure it is valid
 	UHealthComponent* HealthComp = OtherActor->FindComponentByClass<UHealthComponent>();
@@ -216,6 +216,8 @@ void ADodgeBall::OnCompHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPr
 	if (!IsValid(GetOwner()) || OtherActor == GetOwner() || OtherActor == this)
 		return;
 
+	if (!OtherActor)
+		return;
 	//Prevent ball from being influenced by the player
 	bCanCurve = false;
 	bIsCurving = false;
@@ -238,7 +240,8 @@ void ADodgeBall::OnCompHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPr
 			UGameplayStatics::PlaySoundAtLocation(GetWorld(), SoundHit, GetActorLocation());
 	}
 
-	UE_LOG(LogTemp, Warning, TEXT("Hit Projectile - Actor added: %s"), *OtherActor->GetName())
+	if (!OtherActor)
+		return;
 
 	//Get health component and make sure it is valid
 	UHealthComponent* HealthComp = OtherActor->FindComponentByClass<UHealthComponent>();
