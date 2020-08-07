@@ -13,17 +13,18 @@ AProjectileBase::AProjectileBase()
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
-	//Create dodgeball static mesh component and make it the root component
+	//Create sphere collision  and make it the root component. Used for tracking overlapping actors
+	SphereCollision = CreateDefaultSubobject<USphereComponent>(TEXT("Collision Sphere"));
+	SetRootComponent(SphereCollision);
+	SphereCollision->SetSphereRadius(200.f);
+	
+	//Create dodgeball static mesh component
 	StaticMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Projectile Mesh"));
-	SetRootComponent(StaticMesh);
+	StaticMesh->SetupAttachment(RootComponent);
 
 	//Create Projectile Movement Component which will handle the projectile movement (Speed, bouncing, etc)
 	ProjectileMovement = CreateDefaultSubobject<UProjectileMovementComponent>(TEXT("Projectile Movement"));
-
-	//Create sphere collision and attach to StaticMesh. Used for tracking overlapping actors
-	SphereCollision = CreateDefaultSubobject<USphereComponent>(TEXT("Collision Sphere"));
-	SphereCollision->SetupAttachment(StaticMesh);
-	SphereCollision->SetSphereRadius(200.f);
+	
 }
 
 // Called when the game starts or when spawned
@@ -49,7 +50,8 @@ void AProjectileBase::OnOverlapComponent_Implementation(UPrimitiveComponent* Ove
 
 void AProjectileBase::OverlapComponent(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	if(!IsValid(GetOwner()) || OtherActor == GetOwner()) {return;}
+	if(!IsValid(GetOwner()) || OtherActor == GetOwner() || OtherActor==this)
+		return;
 
 	if (Cast<APawn>(OtherActor))
 	{
