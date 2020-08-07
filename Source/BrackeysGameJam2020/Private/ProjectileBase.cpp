@@ -5,6 +5,7 @@
 #include "GameFramework/ProjectileMovementComponent.h"
 #include "Components/StaticMeshComponent.h"
 #include "Components/SphereComponent.h"
+#include "Kismet/GameplayStatics.h"
 
 // Sets default values
 AProjectileBase::AProjectileBase()
@@ -48,6 +49,19 @@ void AProjectileBase::OnOverlapComponent_Implementation(UPrimitiveComponent* Ove
 
 void AProjectileBase::OverlapComponent(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	//Meant to be overridden in child class
+	if(!IsValid(GetOwner()) || OtherActor == GetOwner()) {return;}
+
+	if (Cast<APawn>(OtherActor))
+	{
+		//Play actor hit sound
+		if (SoundActorHit)
+			UGameplayStatics::PlaySoundAtLocation(GetWorld(), SoundActorHit, GetActorLocation());
+	}
+	else
+	{
+		//Play hit sound
+		if (SoundHit)
+			UGameplayStatics::PlaySoundAtLocation(GetWorld(), SoundHit, GetActorLocation());
+	}
 }
 

@@ -52,4 +52,12 @@ public:
 	//C++ function that is called when the projectile hits something
 	virtual void OverlapComponent(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 
+	//Hit sound like when colliding with a wall
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Sound")
+	USoundBase* SoundHit;
+
+	//Hit sound when hitting an actor
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Sound")
+	USoundBase* SoundActorHit;
+
 };

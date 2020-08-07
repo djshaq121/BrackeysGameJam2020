@@ -76,6 +76,19 @@ void APlayerBase::Tick(float DeltaTime)
 		DashCurrentCooldown += DeltaTime;
 	}
 
+	//Play footstep sounds while moving
+	if (GetCharacterMovement()->IsMovingOnGround() && GetVelocity().Size() > 0.f)
+	{
+		if (!GetWorldTimerManager().IsTimerActive(FootstepTimerHandle))
+		{
+			GetWorldTimerManager().SetTimer(FootstepTimerHandle, this, &APlayerBase::Footstep, FootstepInterval);
+		}
+	}
+	else
+	{
+		GetWorldTimerManager().ClearTimer(FootstepTimerHandle);
+	}
+
 }
 
 // Called to bind functionality to input
@@ -89,6 +102,12 @@ void APlayerBase::SetupPlayerInputComponent(UInputComponent* PlayerInputComponen
 	PlayerInputComponent->BindAction("Shoot", IE_Released, this, &APlayerBase::ReleaseShoot);
 	PlayerInputComponent->BindAction("CurveBall", IE_Pressed, this, &APlayerBase::PressCurve);
 	PlayerInputComponent->BindAction("CurveBall", IE_Released, this, &APlayerBase::ReleaseCurve);
+}
+
+void APlayerBase::Landed(const FHitResult& Hit)
+{
+	if(SoundLand)
+		UGameplayStatics::PlaySoundAtLocation(GetWorld(), SoundLand, GetActorLocation());
 }
 
 void APlayerBase::Dash()
@@ -139,6 +158,10 @@ void APlayerBase::Dash()
 		DashCurrentCooldown = 0;
 		//Set dash timer to DashCooldown variable
 		GetWorldTimerManager().SetTimer(DashTimer, this, &APlayerBase::EnableDash, DashCooldown, false);
+
+		//Play dash sound
+		if (SoundDash)
+			UGameplayStatics::PlaySoundAtLocation(GetWorld(), SoundDash, GetActorLocation());
 	}
 	
 }
@@ -162,6 +185,10 @@ void APlayerBase::PressShoot()
 	{
 		//If the projectile exists and the player cannot shoot (Meaning that they can only recall the ball), set the dodgeball to the DelayReturn state
 		ProjectileRef->SetBallState(DelayReturn);
+
+		//Play return sound
+		if (SoundReturn)
+			UGameplayStatics::PlaySoundAtLocation(GetWorld(), SoundReturn, GetActorLocation());
 	}
 }
 
@@ -189,6 +216,10 @@ void APlayerBase::ReleaseShoot()
 		{
 			ProjectileRef->SetIsCurving(true);
 		}
+
+		//Play throw sound
+		if(SoundThrow)
+			UGameplayStatics::PlaySoundAtLocation(GetWorld(), SoundThrow, GetActorLocation());
 	}
 }
 
@@ -216,6 +247,16 @@ void APlayerBase::IncrementBallCharge()
 {
 	if (ChargeAmount < MaxBallCharge)
 		ChargeAmount++;
+
+	//Play return sound
+	if (SoundCharge)
+		UGameplayStatics::PlaySoundAtLocation(GetWorld(), SoundCharge, GetActorLocation(), 1.f, 1.f + MaxBallCharge/ChargeAmount);
+}
+
+void APlayerBase::Footstep()
+{
+	if(SoundFootstep)
+		UGameplayStatics::PlaySoundAtLocation(GetWorld(), SoundFootstep, GetActorLocation());
 }
 
 void APlayerBase::OnHealthChanged(UHealthComponent * OwningHealthComp, float Health, FVector HitDirection, AController * InstigatedBy, AActor * DamageCauser)
@@ -226,5 +267,11 @@ void APlayerBase::OnHealthChanged(UHealthComponent * OwningHealthComp, float Hea
 		if (PlayerController)
 			PlayerController->PlayerCameraManager->PlayCameraShake(DamageCamShake);
 		
+	}
+
+	if(OwningHealthComp->GetIsDead())
+	{
+		if (SoundDeath)
+			UGameplayStatics::PlaySoundAtLocation(GetWorld(), SoundDeath, GetActorLocation());
 	}
 }
