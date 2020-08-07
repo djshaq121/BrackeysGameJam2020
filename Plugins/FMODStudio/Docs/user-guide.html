@@ -84,6 +84,7 @@
 </li>
 <li><a href="#deployment">Deployment</a><ul>
 <li><a href="#packaging-banks">Packaging banks</a></li>
+<li><a href="#mutli-platform-builds">Mutli-platform builds</a></li>
 <li><a href="#bank-files-inside-content-directory">Bank Files Inside Content Directory</a></li>
 <li><a href="#deploying-fmod-audio-plugins">Deploying FMOD audio plugins</a></li>
 <li><a href="#loading-blueprints-before-plugin-load">Loading blueprints before plugin load</a></li>
@@ -432,13 +433,11 @@ You will need to add these parameter names to the integration settings.</p>
 <p>These steps describe how to prepare your project for deployment. This is relevant to both the Launch option as well as the "File &gt; Package Project" menu item.<br />
 If any platforms require specific steps, they can be found in <a href="platform-specifics.html">Platform Specifics</a>.</p>
 <h3 id="packaging-banks"><a href="#packaging-banks">2.15.1 Packaging banks</a></h3>
-<p>Banks need to be packaged and included in the game data. This can be done by selecting the "Edit &gt; Project Settings..." menu item. Navigating to the Packaging section from the left hand pane, under the game heading, presents you with options for specifying directories that include extra assets. There are two ways of doing this:</p>
-<ul>
-<li>Additional Non-Asset Directories to Package: Will copy banks inside the final package file.</li>
-<li>Additional Non-Asset Directories to Copy: Will copy banks as loose files.</li>
-</ul>
-<p>We recommend using Directories to Package so that bank files are bundled into the package file automatically.</p>
+<p>The directory containing the built FMOD banks should be added to the "Additional Non-Asset Directories To Copy" list. You will be prompted to do this in the FMOD Studio settings pane of Unreal project settings ("Edit &gt; Project Settings &gt; FMOD Studio"):</p>
 <p><img alt="Project deployment" src="images/project-deploy.png" /></p>
+<p>This can also be done manually by selecting the "Edit &gt; Project Settings..." menu item and navigating to the Packaging section from the left hand pane, under the Project heading and adding the bank output directory to the "Additional Non-Asset Directories to Copy" list.</p>
+<p>When the bank output directory is added to the "Additional Non-Asset Directories to Copy" list the banks will be copied as loose files when packaging your project. This is the recommended approach. It is possible to have the banks added to UE4's .PAK file by adding the bank output directory to the "Additional Non-Asset Directories to Package" list, but we no longer recommend this approach because adding the banks to the .PAK file can lead to the packaged project deadlocking in the filesystem.</p>
+<h3 id="mutli-platform-builds"><a href="#mutli-platform-builds">2.15.2 Mutli-platform builds</a></h3>
 <p>Each platform will look for its own type of banks in its own directory. Make sure you have added the platform to FMOD Studio project. The platforms are:</p>
 <ul>
 <li>Desktop (Windows, Mac, Linux)</li>
@@ -448,7 +447,7 @@ If any platforms require specific steps, they can be found in <a href="platform-
 <li>Mobile (Android, iOS, tvOS)</li>
 </ul>
 <p>If you only have the Desktop banks and want to run on another platform, you can set force platform name to Desktop in the FMOD advanced settings.</p>
-<h3 id="bank-files-inside-content-directory"><a href="#bank-files-inside-content-directory">2.15.2 Bank Files Inside Content Directory</a></h3>
+<h3 id="bank-files-inside-content-directory"><a href="#bank-files-inside-content-directory">2.15.3 Bank Files Inside Content Directory</a></h3>
 <p>The above directory name is relative to your Content directory. It is highly recommended that banks be placed within the content directory, as paths outside this directory will not deploy correctly to all platforms. For example:</p>
 <ul>
 <li>Mac doesn't allow support directories outside the content directory at all.</li>
@@ -457,7 +456,7 @@ If any platforms require specific steps, they can be found in <a href="platform-
 <p>This doesn't mean you need to put your whole Studio project inside the content directory. You can customize Studio by editing the Preferences and choosing a directory to export banks to, as described in the <a href="user-guide.html#working-with-banks">Working with Banks</a> page.</p>
 <p>The integration will load the platform bank files automatically. On PC it will load from <code>FMOD/Desktop</code> but on Android and IOS it will look for banks under <code>FMOD/Mobile</code>.</p>
 <p>If you use FMOD as the directory to deploy and have multiple platform banks exported, then they will all be packaged up. To slim down your final package size, you may need to tweak the additional directories setting on a per platform basis. That way you only package <code>FMOD/Mobile</code> for Android, <code>FMOD/Desktop</code> for PC, <code>FMOD/PS4</code> for PS4, etc.</p>
-<h3 id="deploying-fmod-audio-plugins"><a href="#deploying-fmod-audio-plugins">2.15.3 Deploying FMOD audio plugins</a></h3>
+<h3 id="deploying-fmod-audio-plugins"><a href="#deploying-fmod-audio-plugins">2.15.4 Deploying FMOD audio plugins</a></h3>
 <p>You will need to make sure the plugins are deployed as well. Unreal deployment doesn't access to the settings information so you will need to create an extra file that lists the plugins you want to deploy.</p>
 <p>Create a file "plugins.txt" in the <code>FMODStudio/Binaries/Platform/</code> directory. The text file should contain the plugin names (just the name without file extension).</p>
 <p>For example, to deploy fmod_gain.dll on Win64 builds, create a file <code>FMODStudio/Binaries/Win64/plugins.txt</code> with the following contents:</p>
@@ -465,7 +464,7 @@ If any platforms require specific steps, they can be found in <a href="platform-
 </pre></div>
 
 
-<h3 id="loading-blueprints-before-plugin-load"><a href="#loading-blueprints-before-plugin-load">2.15.4 Loading blueprints before plugin load</a></h3>
+<h3 id="loading-blueprints-before-plugin-load"><a href="#loading-blueprints-before-plugin-load">2.15.5 Loading blueprints before plugin load</a></h3>
 <p>One issue to be aware of is where blueprints are serialized from disk too early, before any plugins are loaded. This can occur from the following code, which is included by default in example C++ projects constructor:</p>
 <div class="highlight language-cpp"><pre><span></span><span class="k">static</span> <span class="n">ConstructorHelpers</span><span class="o">::</span><span class="n">FClassFinder</span><span class="o">&lt;</span><span class="n">APawn</span><span class="o">&gt;</span> <span class="n">PlayerPawnClassFinder</span><span class="p">(</span><span class="n">TEXT</span><span class="p">(</span><span class="s">&quot;/Game/FirstPersonCPP/Blueprints/FirstPersonCharacter&quot;</span><span class="p">));</span>
 </pre></div>
@@ -476,7 +475,7 @@ If any platforms require specific steps, they can be found in <a href="platform-
 </pre></div>
 
 
-<h3 id="disabling-unreal-audio-device"><a href="#disabling-unreal-audio-device">2.15.5 Disabling Unreal Audio Device</a></h3>
+<h3 id="disabling-unreal-audio-device"><a href="#disabling-unreal-audio-device">2.15.6 Disabling Unreal Audio Device</a></h3>
 <p>By default FMOD Studio works side-by-side with the inbuilt Unreal audio device on the following platforms:</p>
 <ul>
 <li>Windows Desktop</li>
@@ -502,14 +501,14 @@ AudioMixerModuleName=
 
 
 <p>The audio device can be disabled for every platform that you want to ship with.</p>
-<h3 id="enabling-live-update"><a href="#enabling-live-update">2.15.6 Enabling Live Update</a></h3>
+<h3 id="enabling-live-update"><a href="#enabling-live-update">2.15.7 Enabling Live Update</a></h3>
 <p>The default permissions won't allow FMOD to set up a socket properly for live update. Uncheck the enable live update option in FMOD settings to avoid errors.</p>
 <p>If you get a deployment error "resource.resw is in use by other process", go to the <code>YourGame/Config/DefaultGame.ini</code> and remove the following:</p>
 <div class="highlight language-xml"><pre><span></span>-CulturesToStage=en
 +CulturesToStage=en
 </pre></div></div>
 
-<p class="manual-footer">UE4 Integration 2.00.10 (2020-07-14). &copy; 2020 Firelight Technologies Pty Ltd.</p>
+<p class="manual-footer">UE4 Integration 2.00.11 (2020-08-05). &copy; 2020 Firelight Technologies Pty Ltd.</p>
 </body>
 </html>
 
