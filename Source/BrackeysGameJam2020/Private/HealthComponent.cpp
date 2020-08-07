@@ -25,7 +25,7 @@ void UHealthComponent::BeginPlay()
 	 OwnerKnockbackComp = GetOwner()->FindComponentByClass<UKnockbackComponent>();
 }
 
-void UHealthComponent::DealDamage(AActor* DamagedActor, float Damage, AController * InstigatedBy, FVector HitLocation, AActor* DamageCauser, float KnockbackForce)
+void UHealthComponent::DealDamage(AActor* DamagedActor, float Damage, AController * InstigatedBy, FVector HitImpactPoint, AActor* DamageCauser, float KnockbackForce)
 {
 	CurrentHealth = FMath::Clamp(CurrentHealth - Damage, 0.0f, MaxHealth);
 	if (CurrentHealth <= 0.f && !bIsDead)
@@ -33,10 +33,10 @@ void UHealthComponent::DealDamage(AActor* DamagedActor, float Damage, AControlle
 
 	if (OwnerKnockbackComp)
 	{
-		OwnerKnockbackComp->Knockback(KnockbackForce, HitLocation, DamageCauser);
+		OwnerKnockbackComp->Knockback(KnockbackForce, HitImpactPoint, DamageCauser);
 	}
 
-	OnHealthChange.Broadcast(this, CurrentHealth, HitLocation, InstigatedBy, DamageCauser);
+	OnHealthChange.Broadcast(this, CurrentHealth, HitImpactPoint, InstigatedBy, DamageCauser);
 }
 
 bool UHealthComponent::IsFriendly(AActor* ActorA, AActor* ActorB)

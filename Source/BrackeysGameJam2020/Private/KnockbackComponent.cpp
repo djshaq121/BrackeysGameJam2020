@@ -39,5 +39,5 @@ void UKnockbackComponent::Knockback(float KnockbackForce, FVector ImpactPoint, A
 	FVector Direction = OwnerCharacter->GetActorLocation() - DamageCauser->GetActorLocation();
 	FVector LaunchVector = Direction * KnockbackForce;
 	LaunchVector = FVector(LaunchVector.X, LaunchVector.Y, 5);
-	OwnerCharacter->LaunchCharacter(LaunchVector, false, true);
+	OwnerCharacter->LaunchCharacter(LaunchVector, true, true);
 }
