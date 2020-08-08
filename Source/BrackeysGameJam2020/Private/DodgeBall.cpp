@@ -158,8 +158,8 @@ void ADodgeBall::ReturnToPlayer()
 		PlayerRef->bCanShoot = true;
 
 		//Play hit sound
-		if (SoundHit)
-			UGameplayStatics::PlaySoundAtLocation(GetWorld(), SoundHit, GetActorLocation());
+		if (DodgeBallReturnToPlayerSound)
+			UGameplayStatics::PlaySoundAtLocation(GetWorld(), DodgeBallReturnToPlayerSound, GetActorLocation());
 
 		//Play UI hit animation
 		if (PlayerRef->PlayerUIRef && PlayerRef->UIHitAnim)
@@ -183,6 +183,7 @@ void ADodgeBall::OverlapComponent(UPrimitiveComponent* OverlappedComponent, AAct
 		//Play actor hit sound
 		if (SoundActorHit)
 			UGameplayStatics::PlaySoundAtLocation(GetWorld(), SoundActorHit, GetActorLocation());
+			
 	}
 	else
 	{
@@ -190,8 +191,6 @@ void ADodgeBall::OverlapComponent(UPrimitiveComponent* OverlappedComponent, AAct
 		if (SoundHit)
 			UGameplayStatics::PlaySoundAtLocation(GetWorld(), SoundHit, GetActorLocation());
 	}
-
-	UE_LOG(LogTemp, Warning, TEXT("Overlap Projectile - Actor added: %s"), *OtherActor->GetName())
 
 	//Prevent ball from being influenced by the player
 	bCanCurve = false;
@@ -232,17 +231,19 @@ void ADodgeBall::OnCompHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPr
 
 	ActorsHit.Add(OtherActor);
 
+
 	if (Cast<APawn>(OtherActor))
 	{
 		//Play actor hit sound
 		if (SoundActorHit)
 			UGameplayStatics::PlaySoundAtLocation(GetWorld(), SoundActorHit, GetActorLocation());
+			
 	}
-	else
+	else if (SoundHit)
 	{
 		//Play hit sound
-		if (SoundHit)
-			UGameplayStatics::PlaySoundAtLocation(GetWorld(), SoundHit, GetActorLocation());
+		UGameplayStatics::PlaySoundAtLocation(GetWorld(), SoundHit, GetActorLocation());
+
 	}
 
 	if (!OtherActor)
