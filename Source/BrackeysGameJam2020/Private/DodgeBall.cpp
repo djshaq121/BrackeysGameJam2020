@@ -173,6 +173,13 @@ void ADodgeBall::OverlapComponent(UPrimitiveComponent* OverlappedComponent, AAct
 	if(!IsValid(GetOwner()) || OtherActor == GetOwner() || OtherActor == this)
 		 return; 
 
+	//Prevent ball from being influenced by the player
+	bCanCurve = false;
+	bIsCurving = false;
+
+	if (!OtherActor)
+		return;
+
 	if (ActorsHit.Contains(OtherActor))
 		return;
 
@@ -191,10 +198,6 @@ void ADodgeBall::OverlapComponent(UPrimitiveComponent* OverlappedComponent, AAct
 		if (SoundHit)
 			UGameplayStatics::PlaySoundAtLocation(GetWorld(), SoundHit, GetActorLocation());
 	}
-
-	//Prevent ball from being influenced by the player
-	bCanCurve = false;
-	bIsCurving = false;
 
 	//Make sure GetOwner() is valid and we arent colliding with the actor that spawned us
 	AActor* ActorOwner = GetOwner();
@@ -220,11 +223,11 @@ void ADodgeBall::OnCompHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPr
 	if (!IsValid(GetOwner()) || OtherActor == GetOwner() || OtherActor == this)
 		return;
 
-	if (!OtherActor)
-		return;
-	//Prevent ball from being influenced by the player
 	bCanCurve = false;
 	bIsCurving = false;
+
+	if (!OtherActor)
+		return;
 
 	if (ActorsHit.Contains(OtherActor))
 		return;
