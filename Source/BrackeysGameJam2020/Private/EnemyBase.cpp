@@ -57,6 +57,12 @@ void AEnemyBase::OnHealthChanged(UHealthComponent * OwningHealthComp, float Heal
 		if (SoundDeath)
 			UGameplayStatics::PlaySoundAtLocation(GetWorld(), SoundDeath, GetActorLocation());
 	}
+	else
+	{
+		//Play hit sound
+		if (SoundHit)
+			UGameplayStatics::PlaySoundAtLocation(GetWorld(), SoundHit, GetActorLocation());
+	}
 		
 	
 }
