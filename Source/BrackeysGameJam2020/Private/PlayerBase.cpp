@@ -11,6 +11,7 @@
 #include "HealthComponent.h"
 #include "Camera/CameraShake.h"
 #include "Kismet/GameplayStatics.h"
+#include "Blueprint/UserWidget.h"
 
 // Sets default values
 APlayerBase::APlayerBase()
@@ -162,6 +163,9 @@ void APlayerBase::Dash()
 		//Play dash sound
 		if (SoundDash)
 			UGameplayStatics::PlaySoundAtLocation(GetWorld(), SoundDash, GetActorLocation());
+
+		if(PlayerUIRef && UIDashAnim)
+			PlayerUIRef->PlayAnimation(UIDashAnim, 0.f, 1, EUMGSequencePlayMode::Forward, 1.f, true);
 	}
 	
 }

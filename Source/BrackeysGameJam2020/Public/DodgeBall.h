@@ -48,8 +48,8 @@ public:
 	void SetBallState(TEnumAsByte<Projectile> ProjectileState);
 
 	//Called to get current state of ball
-	UFUNCTION()
-	TEnumAsByte<Projectile> GetBallState() { return BallState; }
+	UFUNCTION(BlueprintCallable)
+	TEnumAsByte<Projectile> GetBallState() const { return BallState; }
 
 	//The speed at which the ball returns to the player
 	UPROPERTY(EditDefaultsOnly, Category = "Dodgeball")
@@ -70,6 +70,7 @@ public:
 	bool GetCanCurve() const { return bCanCurve; }
 
 	//Accessor to get bIsCurving
+	UFUNCTION(BlueprintCallable)
 	bool GetIsCurving() const { return bIsCurving; }
 
 	//Set value of bCanCurve

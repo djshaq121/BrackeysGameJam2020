@@ -12,6 +12,8 @@ class UBoxComponent;
 class UHealthComponent;
 class UCameraShake;
 class USoundBase;
+class UUserWidget;
+class UWidgetAnimation;
 
 /**
  * The base class for the player
@@ -122,6 +124,19 @@ public:
 
 	void Landed(const FHitResult& Hit) override;
 
+	//Dodgeball actor reference
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	ADodgeBall* ProjectileRef;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UUserWidget* PlayerUIRef;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UWidgetAnimation* UIHitAnim;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UWidgetAnimation* UIDashAnim;
+
 protected:
 	UHealthComponent* HealthComp;
 
@@ -164,10 +179,6 @@ private:
 	//Called when the player releases the shoot binding
 	UFUNCTION()
 	void ReleaseCurve();
-
-	//Dodgeball actor reference
-	ADodgeBall* ProjectileRef;
-
 
 	//Handle the interval between gaining charges
 	FTimerHandle ChargeTimerHandle;
