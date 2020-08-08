@@ -6,7 +6,7 @@
 #include "Components/ActorComponent.h"
 #include "HealthComponent.generated.h"
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_FiveParams(FOnHealthChangeSignature, UHealthComponent*, HealthComp, float, Health, FVector, HitDirection, class AController*, InstigatedBy, AActor*, DamageCauser);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_FiveParams(FOnHealthChangeSignature, UHealthComponent*, HealthComp, float, Health, FVector, HitImpactPoint, class AController*, InstigatedBy, AActor*, DamageCauser);
 
 class UKnockbackComponent;
 
@@ -31,7 +31,7 @@ public:
 	bool GetIsDead() const { return bIsDead; }
 
 	UFUNCTION(BlueprintCallable, Category = "Health Component")
-	void DealDamage(AActor * DamagedActor, float Damage, AController * InstigatedBy, FVector HitLocation, AActor * DamageCauser, float KnockbackForce = 1.0f);
+	void DealDamage(AActor * DamagedActor, float Damage, AController * InstigatedBy, FVector HitImpactPoint, AActor * DamageCauser, float KnockbackForce = 1.0f);
 
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "HealthComponent")
 	static bool IsFriendly(AActor* ActorA, AActor* ActorB);

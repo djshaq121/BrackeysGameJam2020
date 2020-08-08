@@ -32,6 +32,8 @@ void ADodgeBall::BeginPlay()
 	{
 		UE_LOG(LogTemp, Error, TEXT("%s is unable to find PlayerBase reference!"), *GetName())
 	}
+
+	SphereCollision->OnComponentHit.AddDynamic(this, &ADodgeBall::OnCompHit);
 }
 
 // Called every frame
@@ -46,7 +48,29 @@ void ADodgeBall::Tick(float DeltaTime)
 		case DelayReturn: ReturnDelay(); break;
 		case Return: ReturnToPlayer(); break;
 	}
+}
 
+void ADodgeBall::LaunchProjectile(FVector Direction, int ChargeAmount)
+{
+	ActorsHit.Empty();
+	//SetBallState(Projectile::Thrown); //Causing Error
+	BallState = Projectile::Thrown;
+	if(SphereCollision)
+		SphereCollision->BodyInstance.SetCollisionProfileName("BlockAllDynamic");
+
+	ProjectileMovement->Velocity = Direction * (ProjectileMovement->InitialSpeed * ChargeAmount);
+	
+}
+
+void ADodgeBall::ReturnProjectile()
+{
+	if (BallState != Projectile::Thrown || BallState==Projectile::Return)
+		return;
+
+	//Allow us to hit enemies on the way back;
+	ActorsHit.Empty();
+	StoreBallPosiitonAndStopMovement();
+	SetBallState(DelayReturn);
 }
 
 void ADodgeBall::SetBallState(TEnumAsByte<Projectile> ProjectileState)
@@ -57,10 +81,6 @@ void ADodgeBall::SetBallState(TEnumAsByte<Projectile> ProjectileState)
 	//Set the state of the ball to the value given in the function
 	BallState = ProjectileState;
 
-	//Halt all projectile movement, store the position at where the projectile was stopped
-	BallPosition = GetActorLocation();
-	ProjectileMovement->StopMovementImmediately();
-	ProjectileMovement->ProjectileGravityScale = 0.f;
 }
 
 void ADodgeBall::Throw()
@@ -79,7 +99,7 @@ void ADodgeBall::Throw()
 		ProjectileMovement->AddForce(Direction * 3000.f);
 
 		//Debug points to show ball influence
-		DrawDebugPoint(GetWorld(), GetActorLocation(), 10.f, FColor::Red, false, 2.f);
+		//DrawDebugPoint(GetWorld(), GetActorLocation(), 10.f, FColor::Red, false, 2.f);
 	}
 }
 
@@ -95,9 +115,32 @@ void ADodgeBall::ReturnDelay()
 	//Change ball state to 'Return' after set time and clear the timer
 	if (!GetWorldTimerManager().IsTimerActive(BallDelayTimer))
 	{
-		BallDelayDelegate.BindUFunction(this, FName("SetBallState"), Return);
-		GetWorldTimerManager().SetTimer(BallDelayTimer, BallDelayDelegate, BallReturnDelay, false);
+		//BallDelayDelegate.BindUFunction(this, FName("SetBallState"), Return);
+		//GetWorldTimerManager().SetTimer(BallDelayTimer, BallDelayDelegate, BallReturnDelay, false);
+		GetWorldTimerManager().SetTimer(BallDelayTimer, this, &ADodgeBall::BeginReturningProjectile, BallReturnDelay, false);
 	}
+}
+
+void ADodgeBall::BeginReturningProjectile()
+{
+	//Update collision profile
+	if (SphereCollision)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Overlap"))
+		SphereCollision->SetCollisionProfileName("OverlapAll");
+	}
+		
+
+	StoreBallPosiitonAndStopMovement();
+	SetBallState(Return);
+}
+
+void ADodgeBall::StoreBallPosiitonAndStopMovement()
+{
+	//Halt all projectile movement, store the position at where the projectile was stopped
+	BallPosition = GetActorLocation();
+	ProjectileMovement->StopMovementImmediately();
+	ProjectileMovement->ProjectileGravityScale = 0.f;
 }
 
 void ADodgeBall::ReturnToPlayer()
@@ -110,9 +153,6 @@ void ADodgeBall::ReturnToPlayer()
 
 	//Update the actors position to the smoothed position
 	SetActorLocation(Position, true);
-
-	//Update collision profile
-	StaticMesh->SetCollisionProfileName("OverlapAll");
 
 	//Destroy ball when in range of player and allow the player to shoot the ball again
 	if (GetActorLocation().Equals(PlayerRef->GetActorLocation(), 100.f))
@@ -128,7 +168,29 @@ void ADodgeBall::ReturnToPlayer()
 
 void ADodgeBall::OverlapComponent(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	Super::OverlapComponent(OverlappedComponent, OtherActor, OtherComp, OtherBodyIndex, bFromSweep, SweepResult);
+	//Super::OverlapComponent(OverlappedComponent, OtherActor, OtherComp, OtherBodyIndex, bFromSweep, SweepResult);
+	if(!IsValid(GetOwner()) || OtherActor == GetOwner() || OtherActor == this)
+		 return; 
+
+	if (ActorsHit.Contains(OtherActor))
+		return;
+
+	ActorsHit.Add(OtherActor);
+
+	if (Cast<APawn>(OtherActor))
+	{
+		//Play actor hit sound
+		if (SoundActorHit)
+			UGameplayStatics::PlaySoundAtLocation(GetWorld(), SoundActorHit, GetActorLocation());
+	}
+	else
+	{
+		//Play hit sound
+		if (SoundHit)
+			UGameplayStatics::PlaySoundAtLocation(GetWorld(), SoundHit, GetActorLocation());
+	}
+
+	UE_LOG(LogTemp, Warning, TEXT("Overlap Projectile - Actor added: %s"), *OtherActor->GetName())
 
 	//Prevent ball from being influenced by the player
 	bCanCurve = false;
@@ -136,7 +198,7 @@ void ADodgeBall::OverlapComponent(UPrimitiveComponent* OverlappedComponent, AAct
 
 	//Make sure GetOwner() is valid and we arent colliding with the actor that spawned us
 	AActor* ActorOwner = GetOwner();
-	if(!ActorOwner || OtherActor == ActorOwner) { return; }
+	if(!ActorOwner || !OtherActor  || OtherActor == ActorOwner  ) { return; }
 
 	//Get health component and make sure it is valid
 	UHealthComponent* HealthComp = OtherActor->FindComponentByClass<UHealthComponent>();
@@ -147,5 +209,49 @@ void ADodgeBall::OverlapComponent(UPrimitiveComponent* OverlappedComponent, AAct
 
 	//Deal damage to who we overlapped with
 	HealthComp->DealDamage(OtherActor, DamageAmount, InstigatorController, SweepResult.ImpactPoint, this, KnockbackForce);
+}
+
+void ADodgeBall::OnCompHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult & Hit)
+{
+	if (!IsValid(GetOwner()) || OtherActor == GetOwner() || OtherActor == this)
+		return;
+
+	if (!OtherActor)
+		return;
+	//Prevent ball from being influenced by the player
+	bCanCurve = false;
+	bIsCurving = false;
+
+	if (ActorsHit.Contains(OtherActor))
+		return;
+
+	ActorsHit.Add(OtherActor);
+
+	if (Cast<APawn>(OtherActor))
+	{
+		//Play actor hit sound
+		if (SoundActorHit)
+			UGameplayStatics::PlaySoundAtLocation(GetWorld(), SoundActorHit, GetActorLocation());
+	}
+	else
+	{
+		//Play hit sound
+		if (SoundHit)
+			UGameplayStatics::PlaySoundAtLocation(GetWorld(), SoundHit, GetActorLocation());
+	}
+
+	if (!OtherActor)
+		return;
+
+	//Get health component and make sure it is valid
+	UHealthComponent* HealthComp = OtherActor->FindComponentByClass<UHealthComponent>();
+	if (!HealthComp)
+		return;
+
+	//Get the controller of the actor that spawned us
+	AController* InstigatorController = GetOwner()->GetInstigatorController<AController>();
+
+	//Deal damage to who we hit with
+	HealthComp->DealDamage(OtherActor, DamageAmount, InstigatorController, Hit.ImpactPoint, this, KnockbackForce);
 }
 
