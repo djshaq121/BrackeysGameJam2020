@@ -11,6 +11,7 @@
 #include "Components/SphereComponent.h"
 #include "HealthComponent.h"
 #include "PlayerBase.h"
+#include "Blueprint/UserWidget.h"
 
 // Sets default values
 ADodgeBall::ADodgeBall()
@@ -125,12 +126,8 @@ void ADodgeBall::BeginReturningProjectile()
 {
 	//Update collision profile
 	if (SphereCollision)
-	{
-		UE_LOG(LogTemp, Warning, TEXT("Overlap"))
 		SphereCollision->SetCollisionProfileName("OverlapAll");
-	}
-		
-
+	
 	StoreBallPosiitonAndStopMovement();
 	SetBallState(Return);
 }
@@ -163,6 +160,10 @@ void ADodgeBall::ReturnToPlayer()
 		//Play hit sound
 		if (SoundHit)
 			UGameplayStatics::PlaySoundAtLocation(GetWorld(), SoundHit, GetActorLocation());
+
+		//Play UI hit animation
+		if (PlayerRef->PlayerUIRef && PlayerRef->UIHitAnim)
+			PlayerRef->PlayerUIRef->PlayAnimation(PlayerRef->UIHitAnim, 0.f, 1, EUMGSequencePlayMode::Forward, 1.f, true);
 	}
 }
 
@@ -209,6 +210,10 @@ void ADodgeBall::OverlapComponent(UPrimitiveComponent* OverlappedComponent, AAct
 
 	//Deal damage to who we overlapped with
 	HealthComp->DealDamage(OtherActor, DamageAmount, InstigatorController, SweepResult.ImpactPoint, this, KnockbackForce);
+
+	//Play UI hit animation
+	if (PlayerRef->PlayerUIRef && PlayerRef->UIHitAnim)
+		PlayerRef->PlayerUIRef->PlayAnimation(PlayerRef->UIHitAnim, 0.f, 1, EUMGSequencePlayMode::Forward, 1.f, true);
 }
 
 void ADodgeBall::OnCompHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult & Hit)
@@ -253,5 +258,9 @@ void ADodgeBall::OnCompHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPr
 
 	//Deal damage to who we hit with
 	HealthComp->DealDamage(OtherActor, DamageAmount, InstigatorController, Hit.ImpactPoint, this, KnockbackForce);
+
+	//Play UI hit animation
+	if (PlayerRef->PlayerUIRef && PlayerRef->UIHitAnim)
+		PlayerRef->PlayerUIRef->PlayAnimation(PlayerRef->UIHitAnim, 0.f, 1, EUMGSequencePlayMode::Forward, 1.f, true);
 }
 
