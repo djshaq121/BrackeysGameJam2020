@@ -126,12 +126,8 @@ void ADodgeBall::BeginReturningProjectile()
 {
 	//Update collision profile
 	if (SphereCollision)
-	{
-		UE_LOG(LogTemp, Warning, TEXT("Overlap"))
 		SphereCollision->SetCollisionProfileName("OverlapAll");
-	}
-		
-
+	
 	StoreBallPosiitonAndStopMovement();
 	SetBallState(Return);
 }
