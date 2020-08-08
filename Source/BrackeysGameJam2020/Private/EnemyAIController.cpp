@@ -40,7 +40,7 @@ void AEnemyAIController::OnUnPossess()
 
 	BehaviorComp->StopTree();
 	Super::OnUnPossess();
-	Destroy(2.0f); // Destroy ai controller once pawn unpossess
+	SetLifeSpan(2.0f); // Destroy ai controller once pawn unpossess
 }
 
 void AEnemyAIController::SetTarget(AActor* Target)

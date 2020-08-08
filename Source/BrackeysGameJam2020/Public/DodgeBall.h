@@ -79,6 +79,9 @@ public:
 	//Set value of bIsCurving
 	void SetIsCurving(const bool& IsCurving) { bIsCurving = IsCurving; }
 
+	UPROPERTY(EditDefaultsOnly, Category = "Sound")
+	USoundBase* DodgeBallReturnToPlayerSound;
+
 private:
 	
 	//Called when ball is in Throw state
