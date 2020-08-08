@@ -35,10 +35,12 @@ void AEnemyAIController::OnPossess(APawn* PossessPawn)
 
 void AEnemyAIController::OnUnPossess()
 {
-	if (!BlackboardComp || !BehaviorComp) return;
-		BehaviorComp->StopTree();
+	if (!BlackboardComp || !BehaviorComp) 
+		return;
 
+	BehaviorComp->StopTree();
 	Super::OnUnPossess();
+	Destroy(2.0f); // Destroy ai controller once pawn unpossess
 }
 
 void AEnemyAIController::SetTarget(AActor* Target)
