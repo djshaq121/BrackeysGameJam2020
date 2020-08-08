@@ -185,7 +185,7 @@ void APlayerBase::PressShoot()
 			GetWorldTimerManager().SetTimer(ChargeTimerHandle, this, &APlayerBase::IncrementBallCharge, BallChargeInterval, true);
 		}
 	}
-	else if (ProjectileRef)
+	else if (IsValid(ProjectileRef))
 	{
 		//If the projectile exists and the player cannot shoot (Meaning that they can only recall the ball), set the dodgeball to the DelayReturn state
 		//ProjectileRef->SetBallState(DelayReturn);
@@ -195,6 +195,9 @@ void APlayerBase::PressShoot()
 		if (SoundReturn)
 			UGameplayStatics::PlaySoundAtLocation(GetWorld(), SoundReturn, GetActorLocation());
 	}
+	else 
+		bCanShoot = true;
+	
 }
 
 void APlayerBase::ReleaseShoot()
@@ -210,7 +213,6 @@ void APlayerBase::ReleaseShoot()
 		ProjectileRef = GetWorld()->SpawnActor<ADodgeBall>(ProjectileClass, ProjectileTransform);
 		ProjectileRef->SetOwner(this);
 		bCanShoot = false;
-
 
 		//Adjust the velocity of the ball based on the amount of charges the player held for. Reset the ChargeAmount and clear the ChargeTimerHandle (since it was set to loop) after calculating
 		ProjectileRef->LaunchProjectile(GetControlRotation().Vector(), ChargeAmount);
